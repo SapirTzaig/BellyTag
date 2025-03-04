@@ -1,0 +1,85 @@
+<template>
+    <div class="login">
+      <h1>Login</h1>
+      <form @submit.prevent="login">
+        <input
+          type="text"
+          v-model="username"
+          placeholder="Username"
+          required
+        />
+        <input
+          type="password"
+          v-model="password"
+          placeholder="Password"
+          required
+        />
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  </template>
+  
+  <script>
+  export default {
+    data() {
+      return {
+        username: "",
+        password: "",
+      };
+    },
+    methods: {
+      async login() {
+        const response = await fetch("http://localhost:5000/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: this.username,
+            password: this.password,
+          }),
+        });
+  
+        const result = await response.json();
+        if (response.ok) {
+          // Redirect to dashboard after successful login
+          this.$router.push("/dashboard");
+        } else {
+          alert(result.message);
+        }
+      },
+    },
+  };
+  </script>
+  
+  <style scoped>
+  .login {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4caf50;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  </style>
+  
