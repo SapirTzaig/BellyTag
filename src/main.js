@@ -1,5 +1,5 @@
 import { createApp } from 'vue';
-import App from './src/App.vue';
+import App from './App.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from './components/Login.vue';
 import Upload from './components/Upload.vue';
