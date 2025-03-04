@@ -68,7 +68,7 @@ export default {
 }
 
 input {
-  width: 100%;
+  width: 80%;
   padding: 10px;
   margin: 10px 0;
   border: 1px solid #ccc;
@@ -76,7 +76,7 @@ input {
 }
 
 button {
-  width: 100%;
+  width: 80%;
   padding: 10px;
   background-color: #4caf50;
   border: none;
