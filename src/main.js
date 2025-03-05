@@ -1,12 +1,14 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import { createRouter, createWebHistory } from 'vue-router';
+import RegisterPage from './Pages/RegisterPage.vue';
 import Login from './Pages/Login.vue';
 import Upload from './Pages/Upload.vue';
 import Dashboard from './Pages/Dashboard.vue';
 import PatientScreen from './Pages/PatientScreen.vue';
 
 const routes = [
+  // { path: '/', component: RegisterPage},
   { path: '/', component: Login },
   { path: '/upload', component: Upload },
   { path: '/dashboard', component: Dashboard },
