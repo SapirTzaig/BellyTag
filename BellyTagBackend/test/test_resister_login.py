@@ -1,6 +1,5 @@
 import os
 import csv
-import bcrypt
 import hashlib
 
 CSV_FILE = r"C:\Users\User\Documents\GitHub\BellyTag\BellyTagBackend\DB\patients.csv"
@@ -9,10 +8,8 @@ CSV_FILE = r"C:\Users\User\Documents\GitHub\BellyTag\BellyTagBackend\DB\patients
 if not os.path.exists(CSV_FILE):
     with open(CSV_FILE, mode="w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(['u_id', 'password', 'name', 'mail', 'age', 'gender', 'status', 'date'])
+        writer.writerow(['u_id', 'password', 'name', 'mail', 'age', 'gender', 'status', 'children', 'date', 'license'])
         file.flush()
-
-
 
 def generate_unique_id(user_id, password):
     """Generate a unique ID for a user using SHA-256."""
@@ -22,26 +19,28 @@ def generate_unique_id(user_id, password):
     return hash_object.hexdigest()
 
 def register_user(user_data):
-    """Register a user and save to clients.csv."""
+    """Register a user and save to patients.csv."""
     user_id = user_data['id']
     password = user_data['password']  # Store plain password
 
     u_id = generate_unique_id(user_id, password)
-
+    
     print(f"\nDEBUG: Writing to {CSV_FILE}: {u_id}, {password}, {user_id}")
-
+    
     try:
         with open(CSV_FILE, mode="a", newline="") as file:
-            file.write("\n")  # Force a newline before writing new data
+            file.write("\n")
             writer = csv.writer(file, quoting=csv.QUOTE_ALL)
-            writer.writerow([u_id, password, user_id, user_data['mail'], user_data['age'], 
-                             user_data['gender'], user_data['status'], user_data['date_of_birth']])
+            writer.writerow([
+                u_id, password, user_data['name'], user_data['mail'], user_data['age'],
+                user_data['gender'], user_data['status'], user_data['children'],
+                user_data['date'], user_data['license']
+            ])
         print(f"SUCCESS: User '{user_id}' registered with UID: {u_id}")
     except Exception as e:
         print(f"ERROR: Could not write to CSV - {e}")
-
+    
     return u_id
-
 
 def check_user_in_csv():
     """Check and display all users in the CSV file."""
@@ -56,11 +55,8 @@ def login_user(u_id, password):
         reader = csv.DictReader(file)
         for row in reader:
             if row['u_id'] == u_id:
-                stored_password = row['password'].strip()  # No need to encode
-
+                stored_password = row['password'].strip()
                 print(f"DEBUG: Stored Password: {stored_password}")
-
-                # Since passwords are stored as plain text, compare directly
                 if password == stored_password:
                     print(f"Login successful for user ID: {u_id}")
                     return True
@@ -70,15 +66,11 @@ def login_user(u_id, password):
         print("User not found.")
         return False
 
-
 def get_personal_data(u_id):
     """Retrieve personal data of a registered user."""
     with open(CSV_FILE, mode="r") as file:
         reader = csv.DictReader(file)
-
-        # Print column names to check for hidden characters
         print(f"CSV Headers: {reader.fieldnames}")
-
         for row in reader:
             if row['u_id'] == u_id:
                 print("User Found!")
@@ -87,23 +79,22 @@ def get_personal_data(u_id):
                 print(f"Age: {row['age']}")
                 print(f"Gender: {row['gender']}")
                 print(f"Status: {row['status']}")
-                print(f"Date of Birth: {row['date']}")  # Ensure this column exists
+                print(f"Children: {row['children']}")
+                print(f"Date: {row['date']}")
+                print(f"License: {row['license']}")
                 return row
-
     print("User not found.")
     return None
-
 
 # ================================
 # Run the testing flow
 # ================================
-
 print("\n===== Registering 4 Users =====")
 test_users = [
-    {'id': 'user1', 'password': 'pass1', 'mail': 'user1@example.com', 'age': '25', 'gender': 'Male', 'status': 'Single', 'date_of_birth': '1999-01-01'},
-    {'id': 'user2', 'password': 'pass2', 'mail': 'user2@example.com', 'age': '30', 'gender': 'Female', 'status': 'Married', 'date_of_birth': '1994-05-15'},
-    {'id': 'user3', 'password': 'pass3', 'mail': 'user3@example.com', 'age': '28', 'gender': 'Other', 'status': 'Divorced', 'date_of_birth': '1996-07-22'},
-    {'id': 'user4', 'password': 'pass4', 'mail': 'user4@example.com', 'age': '22', 'gender': 'Male', 'status': 'Single', 'date_of_birth': '2002-10-10'}
+    {'id': 'user1', 'password': 'pass1', 'name': 'Alice', 'mail': 'user1@example.com', 'age': '25', 'gender': 'Male', 'status': 'Single', 'children': '0', 'date': '1999-01-01', 'license': '2'},
+    {'id': 'user2', 'password': 'pass2', 'name': 'Bob', 'mail': 'user2@example.com', 'age': '30', 'gender': 'Female', 'status': 'Married', 'children': '2', 'date': '1994-05-15', 'license': '1'},
+    {'id': 'user3', 'password': 'pass3', 'name': 'Charlie', 'mail': 'user3@example.com', 'age': '28', 'gender': 'Other', 'status': 'Divorced', 'children': '1', 'date': '1996-07-22', 'license': '0'},
+    {'id': 'user4', 'password': 'pass4', 'name': 'Diana', 'mail': 'user4@example.com', 'age': '22', 'gender': 'Male', 'status': 'Single', 'children': '0', 'date': '2002-10-10', 'license': '4'}
 ]
 
 user_ids = [register_user(user) for user in test_users]
@@ -115,7 +106,6 @@ print("\n===== Testing Login Functionality =====")
 for i, u_id in enumerate(user_ids):
     print(f"\nLogging in user {i+1} with correct password:")
     login_user(u_id, f'pass{i+1}')
-
     print(f"\nLogging in user {i+1} with incorrect password:")
     login_user(u_id, 'wrongpassword')
 
