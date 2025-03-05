@@ -13,7 +13,7 @@ const routes = [
   { path: '/', component: Login },
   { path: '/upload', component: Upload },
   { path: '/dashboard', component: Dashboard },
-  { path: '/patient/:id', component: PatientScreen },
+  { path: '/patient/:barcode', component: PatientScreen },
   { path: '/user-details', component: UserDetails }
 ];
 

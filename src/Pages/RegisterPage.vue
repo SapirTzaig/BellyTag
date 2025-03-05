@@ -1,292 +1,285 @@
 <template>
-  <div class="container" style="border-radius: 10px; background-color: rgba(255, 255, 255, 0.7);">
-    <h1 class="title">Register</h1>
-    <b-form @submit.prevent="onRegister" @reset.prevent="onReset">
-     
-     
-      <b-form-group
-        id="input-group-username"
-        label-cols-sm="3"
-        label="User name:"
-        label-for="username"
-      >
-        <b-form-input
-          id="username"
-          v-model="$v.form.username.$model"
-          type="text"
-          :state="validateState('username')"
-        ></b-form-input>
-        <b-form-invalid-feedback v-if="!$v.form.username.required">
-          User name is required
-        </b-form-invalid-feedback>
-        <b-form-invalid-feedback v-else-if="!$v.form.username.length">
-          User name length should be between 3-8 characters long
-        </b-form-invalid-feedback>
-        <b-form-invalid-feedback v-if="!$v.form.username.alpha">
-          User name needs to be only alpha
-        </b-form-invalid-feedback>
-      </b-form-group>
-
-
-      <b-form-group
-        id="input-group-firstName"
-        label-cols-sm="3"
-        label="First name:"
-        label-for="firstName"
-      >
-        <b-form-input
-          id="firstName"
-          v-model="$v.form.firstName.$model"
-          type="text"
-          :state="validateState('firstName')"
-        ></b-form-input>
-        <b-form-invalid-feedback v-if="!$v.form.firstName.required">
-          First name is required
-        </b-form-invalid-feedback>
-        <b-form-invalid-feedback v-if="!$v.form.firstName.alpha">
-          First name alpha
-        </b-form-invalid-feedback>
-      </b-form-group>
-
-            <b-form-group
-        id="input-group-lastName"
-        label-cols-sm="3"
-        label="Last name:"
-        label-for="lastName"
-      >
-        <b-form-input
-          id="lastName"
-          v-model="$v.form.lastName.$model"
-          type="text"
-          :state="validateState('lastName')"
-        ></b-form-input>
-        <b-form-invalid-feedback v-if="!$v.form.lastName.required">
-          Last name is required
-        </b-form-invalid-feedback>
-        <b-form-invalid-feedback v-if="!$v.form.lastName.alpha">
-          Last name alpha
-        </b-form-invalid-feedback>
-      </b-form-group>
-
-      <b-form-group
-        id="input-group-Password"
-        label-cols-sm="3"
-        label="Password:"
-        label-for="password"
-      >
-        <b-form-input
-          id="password"
-          type="password"
-          v-model="$v.form.password.$model"
-          :state="validateState('password')"
-        ></b-form-input>
-        <b-form-invalid-feedback v-if="!$v.form.password.required">
-          Password is required
-        </b-form-invalid-feedback>
-        <b-form-text v-else-if="$v.form.password.$error" text-variant="info">
-          Your password should be <strong>strong</strong>. <br />
-          For that, your password should be also:
-        </b-form-text>
-        <b-form-invalid-feedback
-          v-if="$v.form.password.required && !$v.form.password.length"
-        >
-          Have length between 5-10 characters long
-        </b-form-invalid-feedback>
-        <b-form-invalid-feedback
-          v-if="$v.form.password.required && !$v.form.password.ContainsNumber"
-        >
-          Have at least one digit
-        </b-form-invalid-feedback>
-        <b-form-invalid-feedback
-          v-if="$v.form.password.required && !$v.form.password.ContainsSpecialChar"
-        >
-          Have at least one special char
-        </b-form-invalid-feedback>
-      </b-form-group>
-
-      <b-form-group
-        id="input-group-confirmedPassword"
-        label-cols-sm="3"
-        label="Confirm Password:"
-        label-for="confirmedPassword"
-      >
-        <b-form-input
-          id="confirmedPassword"
-          type="password"
-          v-model="$v.form.confirmedPassword.$model"
-          :state="validateState('confirmedPassword')"
-        ></b-form-input>
-        <b-form-invalid-feedback v-if="!$v.form.confirmedPassword.required">
-          Password confirmation is required
-        </b-form-invalid-feedback>
-        <b-form-invalid-feedback
-          v-else-if="!$v.form.confirmedPassword.sameAsPassword"
-        >
-          The confirmed password is not equal to the original password
-        </b-form-invalid-feedback>
-      </b-form-group>
-
-        <b-form-group
-        id="input-group-email"
-        label-cols-sm="3"
-        label="Email:"
-        label-for="email"
-      >
-        <b-form-input
-          id="email"
-          v-model="$v.form.email.$model"
-          type="text"
-          :state="validateState('email')"
-        ></b-form-input>
-            <b-form-invalid-feedback v-if="!$v.form.email.required">
-          Email is required
-        </b-form-invalid-feedback>
-        <b-form-invalid-feedback v-if="!$v.form.email.email">
-          Invalid email address
-        </b-form-invalid-feedback>
-      </b-form-group>
-
-      <b-button type="reset" variant="danger">Reset</b-button>
-      <b-button
-        type="submit"
-        variant="primary"
-        style="width:250px;"
-        class="ml-5 w-75"
-        >Register</b-button
-      >
-      <div class="mt-2">
-        You have an account already?
-        <router-link to="login"> Log in here</router-link>
+  <div class="register-container">
+    <h2>Register</h2>
+    <form @submit.prevent="onRegister">
+      <div class="form-group">
+        <label>First Name:</label>
+        <input type="text" v-model="form.firstName" required />
       </div>
-    </b-form>
-    <b-alert
-      class="mt-2"
-      v-if="form.submitError"
-      variant="warning"
-      dismissible
-      show
-    >
-      Register failed: {{ form.submitError }}
-    </b-alert>
+
+      <div class="form-group">
+        <label>Last Name:</label>
+        <input type="text" v-model="form.lastName" required />
+      </div>
+
+      <div class="form-group">
+        <label>ID:</label>
+        <input type="text" v-model="form.id" required />
+      </div>
+
+      <div class="form-group">
+        <label>Date of Birth:</label>
+        <input type="date" v-model="form.dob" @change="calculateAge" required />
+      </div>
+
+      <div class="form-group">
+        <label>Age:</label>
+        <input type="number" v-model="form.age" readonly />
+      </div>
+
+      <div class="form-group">
+        <label>Gender:</label>
+        <div class="gender-group">
+          <input type="radio" id="male" value="Male" v-model="form.gender" required />
+          <label for="male">Male</label>
+          <input type="radio" id="female" value="Female" v-model="form.gender" required />
+          <label for="female">Female</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Status:</label>
+        <select v-model="form.status" required>
+          <option value="">Select</option>
+          <option value="Single">Single</option>
+          <option value="Married">Married</option>
+        </select>
+      </div>
+
+      <div v-if="form.status === 'Married'" class="form-group">
+        <label>Number of Children:</label>
+        <input type="number" v-model="form.children" min="0" />
+      </div>
+
+      <div class="form-group">
+        <label>Email:</label>
+        <input type="email" v-model="form.email" required />
+      </div>
+
+      <div class="form-group">
+        <label>Password:</label>
+        <input type="password" v-model="form.password" required />
+      </div>
+
+      <div class="form-group">
+        <label>Role:</label>
+        <div class="role-group">
+          <input type="radio" id="doctor" value="Doctor" v-model="form.role" required />
+          <label for="doctor">Doctor</label>
+          <input type="radio" id="patient" value="Patient" v-model="form.role" required />
+          <label for="patient">Patient</label>
+        </div>
+      </div>
+
+      <div v-if="form.role === 'Doctor'" class="form-group">
+        <label>Doctor License Number:</label>
+        <input type="text" v-model="form.license" required />
+      </div>
+
+      <div class="buttons">
+        <button type="button" class="reset-btn" @click="onReset">Reset</button>
+        <button type="submit" :disabled="!isFormValid" class="submit-btn">Submit</button>
+      </div>
+    </form>
+  </div>
+
+  <div v-if="showAlert" class="custom-alert" :class="alertType">
+    {{ alertMessage }}
   </div>
 </template>
 
 <script>
-import {
-  required,
-  minLength,
-  maxLength,
-  alpha,
-  sameAs,
-  email
-} from "@vuelidate/validators";
-import { mockRegister } from "../services/auth.js";
-const ContainsNumber = (value) => /\d/.test(value); 
-const ContainsSpecialChar = (value) => /[!@#$%^&*(),.?":{}|<>]/.test(value); 
 export default {
-  name: "Register",
   data() {
     return {
       form: {
-        username: "",
         firstName: "",
         lastName: "",
-        password: "",
-        confirmedPassword: "",
+        id: "",
+        dob: "",
+        age: "",
+        gender: "",
+        status: "",
+        children: "",
         email: "",
-        submitError: undefined
+        password: "",
+        role: "",
+        license: null, // Added license number for doctors
       },
-      countries: [{ value: null, text: "", disabled: true }],
-      errors: [],
-      validated: false
+      showAlert: false,
+      alertMessage: "",
+      alertType: "",
     };
   },
-  validations: {
-    form: {
-      username: {
-        required,
-        length: (u) => minLength(3)(u) && maxLength(8)(u),
-        alpha
-      },
-        firstName: {
-        required,
-        alpha
-      },
-        lastName: {
-        required,
-        alpha
-      },
-      password: {
-        required,
-        length: (p) => minLength(5)(p) && maxLength(10)(p),
-        ContainsSpecialChar,
-        ContainsNumber,
-      },
-      confirmedPassword: {
-        required,
-        sameAsPassword: sameAs("password")
-      },
-        email: {
-        required,
-        email
-      }
+  computed: {
+    isFormValid() {
+      return (
+        this.form.firstName &&
+        this.form.lastName &&
+        this.form.id &&
+        this.form.dob &&
+        this.form.age &&
+        this.form.gender &&
+        this.form.status &&
+        this.form.email &&
+        this.form.password &&
+        this.form.role && // Ensure role is selected
+        (this.form.role === "Doctor" ? this.form.license : true) // Validate license if role is doctor
+      );
     }
   },
-  mounted() {
-  console.log('RegisterPage loaded');
-  },
   methods: {
-    validateState(param) {
-      const { $dirty, $error } = this.$v.form[param];
-      return $dirty ? !$error : null;
+    calculateAge() {
+      if (this.form.dob) {
+        const birthDate = new Date(this.form.dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+        this.form.age = age;
+      }
     },
-    async Register() {
+
+    async onRegister() {
+      if (!this.isFormValid) return;
+
+      // Set the license number to null if the role is not Doctor
+      const formToSend = {
+        ...this.form,
+        license: this.form.role === "Doctor" ? this.form.license : null,
+      };
+
       try {
+        const response = await fetch("http://your-server.com/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formToSend)
+        });
 
-        const response = await this.axios.post(
-          this.$root.store.server_domain + "/Register",
-          {
-            username: this.form.username,
-            firstname: this.form.firstName,
-            lastname: this.form.lastName,
-            password: this.form.password,
-            email:this.form.email
-          }
-        );
+        const data = await response.json();
 
-        this.$router.push("/login");
-      } catch (err) {
-        console.log(err.response);
-        this.form.submitError = err.response.data.message;
+        if (data.status === "ok" && data.barcode) {
+          this.alertMessage = `Successfully registered! Your personal barcode is: ${data.barcode}`;
+          this.alertType = "success";
+          this.showAlert = true;
+          setTimeout(() => {
+            this.$router.push(`/login}`);
+          }, 2000);
+        } else {
+          this.alertMessage = "Registration failed. Please try again.";
+          this.alertType = "error";
+          this.showAlert = true;
+        }
+      } catch (error) {
+        this.alertMessage = "An error occurred. Please check your connection and try again.";
+        this.alertType = "error";
+        this.showAlert = true;
       }
     },
 
-    onRegister() {
-      this.$v.form.$touch();
-      if (this.$v.form.$anyError) {
-        return;
-      }
-      this.Register();
-    },
     onReset() {
       this.form = {
-        username: "",
         firstName: "",
         lastName: "",
+        id: "",
+        dob: "",
+        age: "",
+        gender: "",
+        status: "",
+        children: "",
+        email: "",
         password: "",
-        confirmedPassword: "",
-        email: ""
+        role: "",
+        license: null,
       };
-      this.$nextTick(() => {
-        this.$v.$reset();
-      });
     }
   }
 };
 </script>
-<style lang="scss" scoped>
-.container {
-  max-width: 500px;
+
+<style scoped>
+.register-container {
+  width: 400px;
+  margin: auto;
+  padding: 20px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  font-weight: bold;
+  width: 40%; /* Align label with inputs */
+}
+
+input, select {
+  width: 55%; /* Adjust width to make it uniform */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.gender-group, .role-group {
+  display: flex;
+  gap: 10px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+button {
+  padding: 10px;
+  width: 48%;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.submit-btn {
+  background: #28a745;
+  color: white;
+}
+
+.submit-btn:disabled {
+  background: gray;
+  cursor: not-allowed;
+}
+
+.reset-btn {
+  background: #dc3545;
+  color: white;
+}
+
+/* Align the alert message */
+.custom-alert {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 15px;
+  border-radius: 5px;
+  font-weight: bold;
+  z-index: 1000;
+}
+
+.custom-alert.success {
+  background: #28a745;
+  color: white;
+}
+
+.custom-alert.error {
+  background: #dc3545;
+  color: white;
 }
 
 </style>
