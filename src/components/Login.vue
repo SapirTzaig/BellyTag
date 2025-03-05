@@ -9,6 +9,7 @@
         required
       />
       <input
+      
         type="password"
         v-model="password"
         placeholder="Password"
