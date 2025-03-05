@@ -9,7 +9,6 @@
         required
       />
       <input
-      
         type="password"
         v-model="password"
         placeholder="Password"
@@ -34,32 +33,31 @@ export default {
   },
   
   methods: {
-    async login() {
-      const response = await fetch("http://localhost:5000/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: this.username,
-          password: this.password,
+    login() {
+      // Mock response
+      const response = {
+        ok: true,
+        json: async () => ({
+          id: 1,
+          role: "patient",
+          message: "Login successful",
         }),
-      });
+      };
 
-      const result = await response.json();
-      response = 200;
-      result.role = "doctor"
-
-      if (response.ok) {
-        // If login is successful, check the user's role
-        if (result.role === "doctor") {
-          // Redirect doctor to the dashboard
-          this.$router.push("/dashboard");
-        } else if (result.role === "patient") {
-          // Redirect patient to their personal screen
-          this.$router.push(`/patient/${result.id}`);
+      response.json().then(result => {
+        if (response.ok) {
+          // If login is successful, check the user's role
+          if (result.role === "doctor") {
+            // Redirect doctor to the dashboard
+            this.$router.push("/dashboard");
+          } else if (result.role === "patient") {
+            // Redirect patient to their personal screen
+            this.$router.push(`/patient/${result.id}`);
+          }
+        } else {
+          alert(result.message || "Login failed. Please try again.");
         }
-      } else {
-        alert(result.message || "Login failed. Please try again.");
-      }
+      });
     },
   },
 };
