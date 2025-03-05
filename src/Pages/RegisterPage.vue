@@ -69,23 +69,6 @@
       </b-form-group>
 
       <b-form-group
-        id="input-group-country"
-        label-cols-sm="3"
-        label="Country:"
-        label-for="country"
-      >
-        <b-form-select
-          id="country"
-          v-model="$v.form.country.$model"
-          :options="countries"
-          :state="validateState('country')"
-        ></b-form-select>
-        <b-form-invalid-feedback>
-          Country is required
-        </b-form-invalid-feedback>
-      </b-form-group>
-
-      <b-form-group
         id="input-group-Password"
         label-cols-sm="3"
         label="Password:"
@@ -208,7 +191,6 @@ export default {
         username: "",
         firstName: "",
         lastName: "",
-        country: null,
         password: "",
         confirmedPassword: "",
         email: "",
@@ -234,9 +216,6 @@ export default {
         required,
         alpha
       },
-      country: {
-        required
-      },
       password: {
         required,
         length: (p) => minLength(5)(p) && maxLength(10)(p),
@@ -254,7 +233,7 @@ export default {
     }
   },
   mounted() {
-    this.countries.push(...countries);
+  console.log('RegisterPage loaded');
   },
   methods: {
     validateState(param) {
@@ -270,7 +249,6 @@ export default {
             username: this.form.username,
             firstname: this.form.firstName,
             lastname: this.form.lastName,
-            country:this.form.country ,
             password: this.form.password,
             email:this.form.email
           }
@@ -295,7 +273,6 @@ export default {
         username: "",
         firstName: "",
         lastName: "",
-        country: null,
         password: "",
         confirmedPassword: "",
         email: ""

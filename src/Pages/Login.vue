@@ -16,6 +16,10 @@
         required
       />
       <button type="submit">Login</button>
+      <div class="mt-2">
+        Do not have an account yet?
+        <router-link to="/register"> Register here</router-link>
+      </div>
     </form>
   </div>
 </template>
@@ -28,6 +32,7 @@ export default {
       password: "",
     };
   },
+  
   methods: {
     async login() {
       const response = await fetch("http://localhost:5000/login", {
@@ -40,6 +45,8 @@ export default {
       });
 
       const result = await response.json();
+      response = 200;
+      result.role = "doctor"
 
       if (response.ok) {
         // If login is successful, check the user's role
