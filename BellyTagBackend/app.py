@@ -5,50 +5,98 @@ import boto3
 import csv
 import os
 import bcrypt
-import json
+import hashlib
 
 # Initialize the app
 app = Flask(__name__)
 
+# Generate a unique ID using user_id and password
+def generate_unique_id(user_id, password):
+    # Generate a random salt
+    salt = os.urandom(16)  # 16-byte random salt
 
-@app.route('/alive', methods=['GET'])
-def alive():
-    return "Hey Sapir!", 200
+    # Combine the user ID, password, and salt
+    combined = f"{user_id}{password}".encode('utf-8') + salt
 
-
-@app.route('/register', methods=['GET','POST'])
-def insert_to_csv():
-    if request.method == 'GET':
-        return
+    # Hash the combined input with SHA-256
+    hash_object = hashlib.sha256(combined)
     
-    elif request.method == 'POST':
+    # Get the hexadecimal representation of the hash
+    unique_id = hash_object.hexdigest()
+
+    return unique_id, salt
+
+# Registration route - generates unique user ID and stores the data
+@app.route('/register', methods=['POST'])
+def insert_to_csv():
+    if request.method == 'POST':
         data = request.get_json()
-        u_id = data.get('u_id')
+        user_id = data.get('id')
         password = data.get('password')
         salt = bcrypt.gensalt()
-        password = bcrypt.hashpw(password.encode('utf-8'), salt)
+        password_hash = bcrypt.hashpw(password.encode('utf-8'), salt)
+        
+        # Generate unique user ID
+        u_id, _ = generate_unique_id(user_id, password)
+
         mail = data.get('mail')
         age = data.get('age')
         gender = data.get('gender')
         status = data.get('status')
         date_of_birth = data.get('date_of_birth')
 
-        # Here you can add code to insert the data into a CSV file or a database
-        # For example, you can use the csv module to write to a CSV file
-
-
+        # Save user data along with the unique ID in CSV
         with open('patients.csv', mode='a', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow([u_id, password, mail, age, gender, status, date_of_birth])
+            writer.writerow([u_id, user_id, password_hash, mail, age, gender, status, date_of_birth])
 
-        return "User registered successfully", 201
+        return u_id, 201
 
 
+# Login route - verifies user ID and password
+@app.route('/login', methods=['POST'])
+def login():
+    if request.method == 'POST':
+        data = request.get_json()
+        u_id = data.get('u_id')
+        password = data.get('password')
 
+        # Search for the user in the CSV file
+        with open('patients.csv', mode='r') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                if row['u_id'] == u_id:
+                    # Verify the password using bcrypt
+                    if bcrypt.checkpw(password.encode('utf-8'), row['password'].encode('utf-8')):
+                        return "Login successful", 200
+                    else:
+                        return "Incorrect password", 401
+            
+            return "User not found", 404
+
+
+# Personal data route - retrieves user information by u_id
+@app.route('/personal', methods=['GET'])
+def get_personal_data():
+    if request.method == 'GET':
+        data = request.get_json()
+        u_id = data.get('u_id')
+
+        with open('patients.csv', mode='r') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                if row['u_id'] == u_id:
+                    return {
+                        "name": row.get('name'),
+                        "mail": row.get('mail'),
+                        "age": row.get('age'),
+                        "gender": row.get('gender'),
+                        "status": row.get('status'),
+                        "date": row.get('date_of_birth')
+                    }, 200
+
+            return "User not found", 404
 
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
