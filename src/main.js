@@ -1,10 +1,10 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import { createRouter, createWebHistory } from 'vue-router';
-import Login from './components/Login.vue';
-import Upload from './components/Upload.vue';
-import Dashboard from './components/Dashboard.vue';
-import PatientScreen from './components/PatientScreen.vue';
+import Login from './Pages/Login.vue';
+import Upload from './Pages/Upload.vue';
+import Dashboard from './Pages/Dashboard.vue';
+import PatientScreen from './Pages/PatientScreen.vue';
 
 const routes = [
   { path: '/', component: Login },
