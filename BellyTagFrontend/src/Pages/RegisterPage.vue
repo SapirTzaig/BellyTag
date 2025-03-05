@@ -152,15 +152,16 @@ export default {
       };
 
       try {
-        const response = await fetch("http://your-server.com/register", {
+        const response = await fetch("http://localhost:5000/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formToSend)
         });
-
+        console.log("lslslssl");
+        console.log(response);
         const data = await response.json();
-
-        if (data.status === "ok" && data.barcode) {
+        console.log(data);
+        if ((data.status === 200 || data.status === 201) && data.barcode) {
           this.alertMessage = `Successfully registered! Your personal barcode is: ${data.barcode}`;
           this.alertType = "success";
           this.showAlert = true;
