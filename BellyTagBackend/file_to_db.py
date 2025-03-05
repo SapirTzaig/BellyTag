@@ -6,6 +6,7 @@ import os
 import pytesseract
 from PIL import Image
 
+
 def pdf_to_text(pdf_path):
     text = ""
 
@@ -43,6 +44,7 @@ def pdf_to_text(pdf_path):
             print(f"pdfminer failed: {e}")
 
     return text.strip()  # Remove any leading/trailing whitespace
+
 
 if __name__ == "__main__":
     # pdf_path = r"C:\Users\galev\OneDrive\Desktop\לימודים\יזמות וחדשנות\pdf\first-trimester-ultrasound-report-to-lmc-sample.pdf"
