@@ -18,6 +18,54 @@ from PIL import Image
 app = Flask(__name__)
 
 ### file functions
+
+prenatal_tests = {
+        "Ultrasound for Fetal Nuchal Translucency": [
+            ("Nuchal Translucency", "float"),
+            ("Crown Rump Length", "float"),
+            ("Fetal Heart Rate", "float"),
+            ("Biparietal diameter", "float"),
+        ],
+        "Ultrasound for Fetal Nasal Bone Determination": [
+            ("Nasal Bone Visible", "boolean")
+        ],
+        "Maternal Serum (Blood) Tests": [
+            ("Pregnancy Associated Plasma Protein A", "float"),
+            ("Human Chorionic Gonadotropin", "float")
+        ],
+        "Genetic Screening Recommendation": [
+            ("Genetic Counseling Recommended", "boolean"),
+            ("Additional Testing Needed", "boolean"),
+            ("Additional Tests", "list")
+        ],
+        "Multiple Marker Blood Tests (Second Trimester)": [
+            ("AFP Screening", "float"),
+            ("Estriol", "float"),
+            ("Inhibin", "float"),
+            ("Human Chorionic Gonadotropin", "float")
+        ],
+        "Possible Abnormal Indications": [
+            ("Abnormal AFP", "boolean"),
+            ("Miscalculated Due Date", "boolean"),
+            ("Fetal Abdominal Wall Defects", "boolean"),
+            ("Chromosomal Abnormalities", "boolean"),
+            ("Open Neural Tube Defects", "boolean"),
+            ("Multiple Fetuses Detected", "boolean")
+        ],
+        "Follow-up Testing": [
+            ("Ultrasound Recommended", "boolean"),
+            ("Amniocentesis Needed", "boolean")
+        ],
+        "Screening Accuracy": [
+            ("False Positive Risk", "float"),
+            ("False Negative Risk", "float")
+        ],
+        "Group B Streptococcus Presence": [
+            ("Result", "boolean")
+        ]
+    }
+
+
 def pdf_to_text(pdf_path):
     text = ""
 
@@ -63,6 +111,43 @@ def image_to_text(image_path):
     return text.strip()  # Remove any leading/trailing whitespace
 
 
+def file_to_attributes(file_path, prenatal_test):
+    if file_path[-3:] == "pdf":
+        text = pdf_to_text(file_path)
+    elif file_path[-3:] == "png" or file_path[-3:] == "jpg" or file_path[-4:] == "jpeg":
+        text = image_to_text(file_path)
+    
+    
+    kvp = prenatal_tests[prenatal_test]
+
+
+    # Extract text
+    # pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+    
+
+    pdf_text = pdf_text.replace("\n", " ")
+    pdf_text += "\n\nI want you to get from the text the following parameters and their values " \
+                "(the desired type is provided) and the metric (mm/cm/bpm etc...). " \
+                "If something doesn't exist, put None instead:\n"
+
+    for key, value in kvp:
+        pdf_text += f"{key} : {value}\n"
+
+    pdf_text += "I want only the parameters, values of the parameters, and the metric, " \
+                "no * or bullet points or the opening line\n"
+
+    client = genai.Client(api_key="AIzaSyBpT6qJ1A28dh2XQDnmSiNL4hIl-P94jFU")
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=pdf_text,
+    )
+
+    print(response.to_json_dict())
+    return response.to_json_dict()
+
+
+
 # def text_to_attributes(text):
 
 
@@ -98,7 +183,6 @@ def add_record_to_table(u_id, test, attributes, table_name="Prenatal_Tests", reg
             ExpressionAttributeValues=expression_attribute_values
         )
 
-        return "Record was added or updated!"
 
     except ClientError as e:
         return f"Error: {e.response['Error']['Message']}"
@@ -231,6 +315,19 @@ def get_personal_data():
                     }, 200
 
             return "User not found", 404
+
+
+@app.route('/file', methods=['POST'])
+def file_to_attributes():
+    if request.method == 'POST':
+        data = request.get_json()
+        u_id = data.get('u_id')
+        test = data.get('test')
+        file_path = data.get('file_path')
+
+        attributes = file_to_attributes(file_path, test)
+        add_record_to_table(u_id, test, attributes)
+        return attributes, 201
 
 
 if __name__ == '__main__':
