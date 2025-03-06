@@ -9,7 +9,7 @@ import hashlib
 import PyPDF2
 import pdfplumber
 from pdfminer.high_level import extract_text
-from google import genai
+import genai
 import os
 import pytesseract
 from PIL import Image
@@ -328,19 +328,19 @@ def login():
 def get_personal_data():
     if request.method == 'GET':
         data = request.get_json()
-        u_id = data.get('u_id')
+        u_id = data.get('barcode')
 
         with open(r"BellyTagBackend\DB\patients.csv", mode='r') as file:
             reader = csv.DictReader(file)
             for row in reader:
                 if row['u_id'] == u_id:
                     return {
-                        "name": row.get('name'),
-                        "mail": row.get('mail'),
-                        "age": row.get('age'),
-                        "gender": row.get('gender'),
-                        "status": row.get('status'),
-                        "date": row.get('date_of_birth')
+                        "Name": row.get('name'),
+                        "Age": row.get('age'),
+                        "Email": row.get('mail'),
+                        "Gender": row.get('gender'),
+                        "Status": row.get('status') + " + " + row.get('children') if row.get('children')else row.get('status'),
+                        "DoB": row.get('date')
                     }, 200
 
             return "User not found", 404
