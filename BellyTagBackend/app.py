@@ -13,9 +13,14 @@ from google import genai
 import os
 import pytesseract
 from PIL import Image
+from flask_cors import CORS
+
+
 
 # Initialize the app
 app = Flask(__name__)
+
+CORS(app)
 
 ### file functions
 
