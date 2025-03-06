@@ -247,7 +247,7 @@ def generate_unique_id(user_id, password):
 # Registration Route
 @app.route('/register', methods=['POST'])
 def insert_to_csv():
-    
+
     if request.method == 'POST':
         data = request.get_json()
         firstName = data.get('firstName')
@@ -305,8 +305,8 @@ def login():
                     if hashed_input_password == stored_hash:
                         license = row.get('license')
                         if license == "0":
-                            return "Doctor", 200
-                        return "Patient", 200
+                            return {'role': "patient"}, 200
+                        return {'role': "doctor"}, 200
                     else:
                         return "Incorrect password", 401
 
