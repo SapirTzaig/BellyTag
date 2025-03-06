@@ -1,11 +1,12 @@
 <template>
   <div class="upload">
     <h1>Upload Medical Document</h1>
-    
+
     <!-- Dropdown to choose the test -->
     <div class="form-group">
       <label for="test-selection">Select Test:</label>
       <select v-model="selectedTest" id="test-selection">
+        <!-- Dropdown options for tests -->
         <option value="">Select Test</option>
         <option value="Ultrasound for Fetal Nuchal Translucency">Ultrasound for Fetal Nuchal Translucency</option>
         <option value="Ultrasound for Fetal Nasal Bone Determination">Ultrasound for Fetal Nasal Bone Determination</option>
@@ -18,38 +19,14 @@
         <option value="Group B Streptococcus Presence">Group B Streptococcus Presence</option>
       </select>
     </div>
-    
+
     <!-- File upload input -->
-    <input type="file" accept=".pdf" @change="handleFileUpload" />
+    <input type="file" accept=".png,.pdf" @change="handleFileUpload" />
 
-    <!-- Display the extracted text from the uploaded file -->
-    <div v-if="extractedText">
-      <h2>Extracted Text:</h2>
-      <pre>{{ extractedText }}</pre>
+    <!-- Toast Notification -->
+    <div v-if="toastMessage" class="toast" :class="toastType">
+      {{ toastMessage }}
     </div>
-
-    <!-- Display the LLM analysis -->
-    <div v-if="analysis">
-      <h2>Analysis:</h2>
-      <pre>{{ analysis }}</pre>
-    </div>
-
-    <!-- List of previously uploaded files -->
-    <div v-if="previousUploads.length > 0">
-      <h2>Previous Uploads:</h2>
-      <select v-model="selectedUpload">
-        <option v-for="(file, index) in previousUploads" :key="index" :value="file">
-          {{ file.name }} - {{ file.date }}
-        </option>
-      </select>
-      <!-- Checkbox for sending files via email -->
-      <div v-for="(file, index) in previousUploads" :key="index" class="checkbox-container">
-        <input type="checkbox" v-model="file.selected" /> 
-        <label>{{ file.name }}</label>
-      </div>
-    </div>
-
-    <button @click="sendFilesByEmail" :disabled="!selectedFiles.length">Send Files to Email</button>
   </div>
 </template>
 
@@ -57,81 +34,61 @@
 export default {
   data() {
     return {
+      barcode: "",
       selectedTest: "",
-      selectedUpload: null,
-      extractedText: null,
-      analysis: null,
-      previousUploads: [],
+      toastMessage: "",
+      toastType: "",
     };
   },
-  computed: {
-    selectedFiles() {
-      return this.previousUploads.filter(file => file.selected);
-    },
+  mounted() {
+    this.barcode = this.$route.params.barcode; // Get barcode from URL
   },
   methods: {
     async handleFileUpload(event) {
       const file = event.target.files[0];
-      
-      if (file && file.type === "application/pdf") {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("testType", this.selectedTest);
 
-        try {
-          const response = await fetch("http://localhost:5000/upload", {
-            method: "POST",
-            body: formData,
-          });
+      if (!file) {
+        this.showToast("Please select a file to upload.", "error");
+        return;
+      }
 
-          const result = await response.json();
+      if (!this.selectedTest) {
+        this.showToast("Please select a test type before uploading.", "error");
+        return;
+      }
 
-          if (result.extracted_text) {
-            this.extractedText = result.extracted_text;
-            this.analysis = result.analysis;
+      // Generate timestamp and new file name
+      const timestamp = new Date().toISOString().replace(/[-T:.Z]/g, ""); // Format timestamp
+      const newFileName = `${this.selectedTest}_${timestamp}${file.name.slice(file.name.lastIndexOf('.'))}`; // Use file extension
 
-            // Save the file locally (mock for desktop)
-            const filePath = r`C:\Users\sapir\OneDrive\Desktop\saved${file.name}`;  // Update this path as needed
-            this.previousUploads.push({
-              name: file.name,
-              date: new Date().toLocaleString(),
-              path: filePath,
-              selected: false,
-            });
-          }
-        } catch (error) {
-          alert("Error uploading the file.");
+      // Create FormData
+      const formData = new FormData();
+      formData.append("newFileName", newFileName); // Append new file name
+      formData.append("barcode", this.barcode); // Append barcode from URL
+
+      try {
+        const response = await fetch("http://localhost:5000/upload/${this.barcode}", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          this.showToast("File uploaded successfully!", "success");
+        } else {
+          throw new Error("Something went wrong. Please try again.");
         }
-      } else {
-        alert("Please upload a valid PDF file.");
+      } catch (error) {
+        this.showToast(error.message, "error");
       }
     },
 
-    async sendFilesByEmail() {
-      const filesToSend = this.selectedFiles.map(file => ({
-        name: file.name,
-        path: file.path,
-      }));
+    showToast(message, type) {
+      this.toastMessage = message;
+      this.toastType = type;
 
-      try {
-        const response = await fetch("http://localhost:5000/send-email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ files: filesToSend }),
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          alert("Files sent successfully!");
-        } else {
-          alert("Error sending files. Please try again.");
-        }
-      } catch (error) {
-        alert("An error occurred while sending files.");
-      }
+      setTimeout(() => {
+        this.toastMessage = "";
+      }, 3000);
     },
   },
 };
@@ -141,42 +98,57 @@ export default {
 .upload {
   max-width: 600px;
   margin: 50px auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9f9f9;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+h1 {
+  text-align: center;
+  font-size: 24px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+}
+
+select,
 input[type="file"] {
-  margin: 20px 0;
-}
-
-select {
   width: 100%;
-  padding: 8px;
-  margin: 10px 0;
-  border-radius: 4px;
-}
-
-.checkbox-container {
-  margin-top: 10px;
-}
-
-pre {
-  background-color: #f4f4f4;
   padding: 10px;
-  border-radius: 4px;
-  white-space: pre-wrap;
-  word-wrap: break-word;
+  margin-top: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+select:focus,
+input[type="file"]:focus {
+  border-color: #4caf50;
+  outline: none;
 }
 
 button {
-  padding: 10px;
+  display: block;
+  width: 100%;
+  padding: 12px;
   background-color: #4caf50;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
 }
 
 button:disabled {
@@ -186,5 +158,40 @@ button:disabled {
 
 button:hover {
   background-color: #45a049;
+}
+
+.checkbox-container {
+  margin-top: 10px;
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px;
+  color: white;
+  border-radius: 8px;
+  text-align: center;
+  width: 300px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.toast.success {
+  background-color: #4caf50;
+}
+
+.toast.error {
+  background-color: #e74c3c;
+}
+
+pre {
+  background-color: #f4f4f4;
+  padding: 12px;
+  border-radius: 6px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 14px;
 }
 </style>
