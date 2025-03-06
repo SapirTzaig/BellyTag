@@ -18,8 +18,8 @@
       <div class="mt-2">
         Do not have an account yet?
         <router-link to="/register"> Register here</router-link>
-        <router-link to="/upload/:barcode"> Upload here</router-link>
-        <router-link to="/patient/:barcode"> Patient screen here</router-link>
+        <router-link :to="`/upload/${barcode}`"> Upload here</router-link>
+        <router-link :to="`/patient/${barcode}`"> Patient screen here</router-link>
       </div>
     </form>
   </div>
@@ -51,13 +51,15 @@ export default {
         const result = await response.json();
         console.log(result);
         if (response.ok) {
-          // If login is successful, check the user's role
+          // If login is successful, store the barcode in sessionStorage
+          sessionStorage.setItem('barcode', this.barcode);
+
+          // If user is a doctor, redirect to the dashboard
           if (result.role === "doctor") {
-            // Redirect doctor to the dashboard
             this.$router.push("/dashboard");
           } else if (result.role === "patient") {
-            // Redirect patient to their personal screen
-            this.$router.push(`/patient/${result.barcode}`);
+            // If user is a patient, redirect to their personal screen
+            this.$router.push(`/patient/${this.barcode}`);
           }
         } else {
           alert(result.message || "Login failed. Please try again.");
@@ -68,7 +70,6 @@ export default {
     },
   },
 };
-
 </script>
 
 <style scoped>
@@ -101,5 +102,9 @@ button {
 
 button:hover {
   background-color: #45a049;
+}
+
+.mt-2 {
+  margin-top: 10px;
 }
 </style>

@@ -5,7 +5,7 @@
         <img :src="logoImage" alt="Logo" class="logo" />
         <ul class="nav-links">
           <li><router-link to="/user-details">User Details</router-link></li>
-          <li><router-link to="/upload">Upload File</router-link></li>
+          <li><router-link :to="`/upload/${barcode}`">Upload File</router-link></li>
         </ul>
       </div>
       <a href="#" @click="logout" class="logout-button">Log Out</a>
@@ -49,6 +49,7 @@ export default {
       patient: {},
       logoImage,
       tableauURL: "https://public.tableau.com/shared/37ZW4WCT6?:display_count=n&:origin=viz_share_link",
+      barcode: sessionStorage.getItem("barcode") || "", // Get the barcode from sessionStorage
     };
   },
   async created() {
@@ -64,8 +65,10 @@ export default {
   },
   methods: {
     logout() {
+      // Clear sessionStorage and redirect to login page
+      sessionStorage.removeItem("barcode");
       alert("Logged out successfully!");
-      this.$router.push("/login");
+      this.$router.push("/");
     },
     updateLastPeriodDate(newDate) {
       this.patient.lastPeriodDate = newDate; // עדכון התאריך ברמת ה-Parent
