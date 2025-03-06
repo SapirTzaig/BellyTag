@@ -238,10 +238,10 @@ def generate_unique_id(user_id, password):
 
     # Hash the combined input with SHA-256
     hash_object = hashlib.sha256(combined)
-    
-    # Get the hexadecimal representation of the hash
-    unique_id = hash_object.hexdigest()
 
+    # Get the first 10 characters of the hexadecimal hash
+    unique_id = hash_object.hexdigest()[:10]
+    
     return unique_id
 
 

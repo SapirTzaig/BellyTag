@@ -11,7 +11,7 @@ import UserDetails from './Pages/UserDetails.vue';
 const routes = [
   { path: '/register', component: RegisterPage },
   { path: '/', component: Login },
-  { path: '/upload', component: Upload },
+  { path: '/upload/:barcode', component: Upload },
   { path: '/dashboard', component: Dashboard },
   { path: '/patient/:barcode', component: PatientScreen },
   { path: '/user-details', component: UserDetails }
