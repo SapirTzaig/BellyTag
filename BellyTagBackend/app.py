@@ -229,7 +229,6 @@ def get_recipe(name, table_name="Prenatal_Tests", region='us-east-2'):
 
 
 # Generate a unique ID using user_id and password
-# Generate a unique ID using user_id and password
 def generate_unique_id(user_id, password):
     # Generate a random salt
     salt = os.urandom(16)  # 16-byte random salt
@@ -242,8 +241,9 @@ def generate_unique_id(user_id, password):
 
     # Get the first 10 characters of the hexadecimal hash
     unique_id = hash_object.hexdigest()[:10]
-
+    
     return unique_id
+
 
 # Registration Route
 @app.route('/register', methods=['POST'])
@@ -276,12 +276,22 @@ def insert_to_csv():
         else:
             last_period = None
 
+
         # Save user data in CSV
         with open(r"BellyTagBackend\DB\patients.csv", mode='a', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
             writer.writerow([u_id, password_hash, f"{firstName} {lastName}", mail, age, gender, status, children, date_of_birth, last_period, license])
 
-        return {"barcode": u_id}, 201
+        path = r"C:\Users\sapir\Documents\\" + u_id
+        if not os.path.exists(path):
+            os.makedirs(path)
+        
+
+
+        return {
+            "barcode": u_id,
+            "path": path
+            }, 201
 
 
 # Login Route
