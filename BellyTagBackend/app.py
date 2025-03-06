@@ -275,7 +275,7 @@ def insert_to_csv():
             
             # Move to the end of the file before writing
             file.seek(0, 2)  # Seek to the end of file
-            writer.writerow([u_id, password_hash, firstName + " " + lastName, mail, age, gender, status, children, date_of_birth, last_period, license])
+            writer.writerow([u_id, password_hash.decode('utf-8'), firstName + " " + lastName, mail, age, gender, status, children, date_of_birth, last_period, license])
 
 
 
@@ -291,22 +291,24 @@ def login():
         password = data.get('password')
 
         # Search for the user in the CSV file
-        with open(r"BellyTagBackend\DB\patients.csv", mode='r') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                if row['u_id'] == u_id:
-                    # Verify the password using bcrypt
-                    if bcrypt.checkpw(password.encode('utf-8'), row['password'].encode('utf-8')):
-                        license = row.get('license')
-                        if license == 0:
-                            return "Doctor", 200
-                        
-                        return "Patient", 200
-                    else:
-                        return "Incorrect password", 401
-            
-            return "User not found", 404
+    with open(r"BellyTagBackend\DB\patients.csv", mode='r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            if row['u_id'] == u_id:
+                # Get the stored password hash from CSV (already a string)
+                stored_hash = row['password'].strip()  # Strip any extra spaces
 
+                # Verify the password using bcrypt
+                if bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8')):  # Encode both to bytes
+                    license = row.get('license')
+                    if license == "0":  # Ensure license is a string when comparing
+                        return "Doctor", 200
+
+                    return "Patient", 200
+                else:
+                    return "Incorrect password", 401
+
+        return "User not found", 404
 
 # Personal data route - retrieves user information by u_id
 @app.route('/personal', methods=['GET'])
