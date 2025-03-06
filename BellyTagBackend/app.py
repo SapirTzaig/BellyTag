@@ -328,7 +328,7 @@ def login():
 def get_personal_data():
     if request.method == 'GET':
         data = request.get_json()
-        u_id = data.get('barcode')
+        u_id = request.args.get('barcode')
 
         with open(r"BellyTagBackend\DB\patients.csv", mode='r') as file:
             reader = csv.DictReader(file)
