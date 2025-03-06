@@ -76,6 +76,12 @@
         <input type="text" v-model="form.license" required />
       </div>
 
+      <!-- Show only if the user is a Patient -->
+      <div v-if="form.role === 'Patient'" class="form-group">
+        <label>Date of Last Period:</label>
+        <input type="date" v-model="form.lastPeriod" />
+      </div>
+
       <div class="buttons">
         <button type="button" class="reset-btn" @click="onReset">Reset</button>
         <button type="submit" :disabled="!isFormValid" class="submit-btn">Submit</button>
@@ -84,7 +90,8 @@
   </div>
 
   <div v-if="showAlert" class="custom-alert" :class="alertType">
-    {{ alertMessage }}
+    <p>{{ alertMessage }}</p>
+    <button @click="closeAlert">OK</button>
   </div>
 </template>
 
@@ -104,7 +111,8 @@ export default {
         email: "",
         password: "",
         role: "",
-        license: null, // Added license number for doctors
+        license: null,
+        lastPeriod: null,
       },
       showAlert: false,
       alertMessage: "",
@@ -123,8 +131,8 @@ export default {
         this.form.status &&
         this.form.email &&
         this.form.password &&
-        this.form.role && // Ensure role is selected
-        (this.form.role === "Doctor" ? this.form.license : true) // Validate license if role is doctor
+        this.form.role &&
+        (this.form.role === "Doctor" ? this.form.license : true)
       );
     }
   },
@@ -145,10 +153,10 @@ export default {
     async onRegister() {
       if (!this.isFormValid) return;
 
-      // Set the license number to null if the role is not Doctor
       const formToSend = {
         ...this.form,
         license: this.form.role === "Doctor" ? this.form.license : null,
+        lastPeriod: this.form.role === "Doctor" ? null : this.form.lastPeriod,
       };
 
       try {
@@ -157,17 +165,13 @@ export default {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formToSend)
         });
-        console.log("lslslssl");
-        console.log(response);
+
         const data = await response.json();
-        console.log(data);
-        if ((data.status === 200 || data.status === 201) && data.barcode) {
-          this.alertMessage = `Successfully registered! Your personal barcode is: ${data.barcode}`;
+        
+        if (response.ok && data.barcode) {
+          this.alertMessage = `Successfully registered! Your personal barcode is: ${data.barcode}\nPlease keep it safe as you will not be able to retrieve your password!`;
           this.alertType = "success";
           this.showAlert = true;
-          setTimeout(() => {
-            this.$router.push(`/login}`);
-          }, 2000);
         } else {
           this.alertMessage = "Registration failed. Please try again.";
           this.alertType = "error";
@@ -180,23 +184,32 @@ export default {
       }
     },
 
+    closeAlert() {
+      this.showAlert = false;
+      if (this.alertType === "success") {
+        this.$router.push("/");
+      }
+    },
+
     onReset() {
-      this.form = {
-        firstName: "",
-        lastName: "",
-        id: "",
-        dob: "",
-        age: "",
-        gender: "",
-        status: "",
-        children: "",
-        email: "",
-        password: "",
-        role: "",
-        license: null,
-      };
-    }
+  this.form = {
+    firstName: "",
+    lastName: "",
+    id: "",
+    dob: "",
+    age: "",
+    gender: "",
+    status: "",
+    children: "",
+    email: "",
+    password: "",
+    role: "",
+    license: null,
+    lastPeriod: null,
+    pregnancyWeek: null
+  };
   }
+}
 };
 </script>
 

@@ -1,1 +1,2 @@
-u_id,password,name,mail,age,gender,status,date
+u_id,password,name,mail,age,gender,status,children,date,last_period,license
+b930c525f78da6066784ce5ee7cc3ca7e518284ec36a98d565db42fa81cf9a61,b'$2b$12$u2eirRYrDVQ2B3ne6xMsDukk5XL97hXgUWSo7w3Mf5AhUdn8oBaaS',Sapir Tzaig,sapir@gmail.com,28,Female,Single,2,1996-07-18,2025-02-06,0
