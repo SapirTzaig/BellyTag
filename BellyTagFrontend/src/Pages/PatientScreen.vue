@@ -22,6 +22,9 @@
     <!-- ✅ קומפוננטה להזנת תאריך וסת אחרון -->
     <LastPeriodDate :date="patient.lastPeriodDate" @update-date="updateLastPeriodDate" />
 
+    <!-- ✅ קומפוננטה להצגת שקיפות עורפית -->
+    <NuchalTranslucencySummary :nt-value="patient.ntValue" />
+
     <!-- ✅ הצגת הדוח באמצעות iframe -->
     <iframe :src="tableauURL" class="tableau-iframe"></iframe>
   </div>
@@ -31,20 +34,21 @@
 import logoImage from "@/Assets/logo.png";
 import PregnancyWeek from "@/Components/PregnancyWeek.vue";
 import BloodTests from "@/Components/BloodTests.vue";
-import LastPeriodDate from "@/Components/LastPeriodDate.vue"; // ✅ ייבוא הקומפוננטה החדשה
+import LastPeriodDate from "@/Components/LastPeriodDate.vue";
+import NuchalTranslucencySummary from "@/Components/NuchalTranslucencySummary.vue"; // ✅ ייבוא הקומפוננטה החדשה
 
 export default {
   components: {
     PregnancyWeek,
     BloodTests,
-    LastPeriodDate, // ✅ רישום הקומפוננטה
+    LastPeriodDate,
+    NuchalTranslucencySummary, // ✅ הוספת הקומפוננטה החדשה
   },
   data() {
     return {
       patient: {},
       logoImage,
-      tableauURL:
-        "https://public.tableau.com/shared/37ZW4WCT6?:display_count=n&:origin=viz_share_link",
+      tableauURL: "https://public.tableau.com/shared/37ZW4WCT6?:display_count=n&:origin=viz_share_link",
     };
   },
   async created() {
@@ -70,9 +74,6 @@ export default {
   },
 };
 </script>
-
-
-
 
 <style scoped>
 .patient-screen {
