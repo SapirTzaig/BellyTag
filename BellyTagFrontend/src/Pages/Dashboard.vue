@@ -69,7 +69,7 @@ export default {
       patients: [], // List of patients
       patientData: null,
       logoImage: "@/Assets/logo.png", // Ensure the logo image is properly imported
-      barcode: "", // Barcode from sessionStorage
+      barcode: sessionStorage.getItem("barcode") || "", // Barcode from sessionStorage
     };
   },
   methods: {
@@ -126,7 +126,6 @@ export default {
       this.$router.push("/"); // If not, redirect to login page
     } else {
       this.barcode = doctorBarcode; // Set the barcode from sessionStorage
-      this.fetchPatients(); // Fetch the list of patients when the dashboard is created
     }
   },
 };
