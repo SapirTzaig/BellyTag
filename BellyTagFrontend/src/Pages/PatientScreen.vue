@@ -13,6 +13,15 @@
 
     <h1>Patient: {{ patient.username || "Loading..." }}</h1>
 
+    <!-- ✅ קומפוננטה להצגת השבוע של ההריון -->
+    <PregnancyWeek :week="patient.pregnancyWeek" />
+
+    <!-- ✅ קומפוננטה להצגת הבדיקות האחרונות -->
+    <BloodTests />
+
+    <!-- ✅ קומפוננטה להזנת תאריך וסת אחרון -->
+    <LastPeriodDate :date="patient.lastPeriodDate" @update-date="updateLastPeriodDate" />
+
     <!-- ✅ הצגת הדוח באמצעות iframe -->
     <iframe :src="tableauURL" class="tableau-iframe"></iframe>
   </div>
@@ -20,14 +29,22 @@
 
 <script>
 import logoImage from "@/Assets/logo.png";
+import PregnancyWeek from "@/Components/PregnancyWeek.vue";
+import BloodTests from "@/Components/BloodTests.vue";
+import LastPeriodDate from "@/Components/LastPeriodDate.vue"; // ✅ ייבוא הקומפוננטה החדשה
 
 export default {
+  components: {
+    PregnancyWeek,
+    BloodTests,
+    LastPeriodDate, // ✅ רישום הקומפוננטה
+  },
   data() {
     return {
       patient: {},
       logoImage,
       tableauURL:
-        "https://public.tableau.com/shared/37ZW4WCT6?:display_count=n&:origin=viz_share_link"
+        "https://public.tableau.com/shared/37ZW4WCT6?:display_count=n&:origin=viz_share_link",
     };
   },
   async created() {
@@ -45,10 +62,17 @@ export default {
     logout() {
       alert("Logged out successfully!");
       this.$router.push("/login");
-    }
-  }
+    },
+    updateLastPeriodDate(newDate) {
+      this.patient.lastPeriodDate = newDate; // עדכון התאריך ברמת ה-Parent
+      console.log("Updated Last Period Date:", newDate);
+    },
+  },
 };
 </script>
+
+
+
 
 <style scoped>
 .patient-screen {
