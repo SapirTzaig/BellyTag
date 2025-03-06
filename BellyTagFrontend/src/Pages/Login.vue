@@ -57,9 +57,11 @@ export default {
           // If user is a doctor, redirect to the dashboard
           if (result.role === "doctor") {
             this.$router.push("/dashboard");
+            sessionStorage.setItem('role', this.role);
           } else if (result.role === "patient") {
             // If user is a patient, redirect to their personal screen
             this.$router.push(`/patient/${this.barcode}`);
+            sessionStorage.setItem('role', this.role);
           }
         } else {
           alert(result.message || "Login failed. Please try again.");

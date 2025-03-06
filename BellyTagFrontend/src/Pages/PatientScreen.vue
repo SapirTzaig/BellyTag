@@ -1,17 +1,6 @@
 <template>
   <div class="patient-screen">
-    <nav class="navbar">
-      <div class="nav-left">
-        <img :src="logoImage" alt="Logo" class="logo" />
-        <ul class="nav-links">
-          <li><router-link to="/user-details">User Details</router-link></li>
-          <li><router-link :to="`/upload/${barcode}`">Upload File</router-link></li>
-        </ul>
-      </div>
-      <a href="#" @click="logout" class="logout-button">Log Out</a>
-    </nav>
-
-    <h1>Patient: {{ patient.username  }}</h1>
+    <h1>Patient: {{ patient.username }}</h1>
 
     <!-- ✅ עטיפת הקומפוננטות ב-Grid -->
     <div class="components-grid">
@@ -20,12 +9,8 @@
       <LastPeriodDate :date="patient.lastPeriodDate" @update-date="updateLastPeriodDate" />
       <NuchalTranslucencySummary :nt-value="patient.ntValue" />
     </div>
-
-    <!-- ✅ הצגת הדוח באמצעות iframe -->
-    <iframe :src="tableauURL" class="tableau-iframe"></iframe>
   </div>
 </template>
-
 
 <script>
 import logoImage from "@/Assets/logo.png";
@@ -65,10 +50,10 @@ export default {
       // Clear sessionStorage and redirect to login page
       sessionStorage.removeItem("barcode");
       alert("Logged out successfully!");
-      this.$router.push("/");
+      this.$router.push("/"); // Redirect to login page
     },
     updateLastPeriodDate(newDate) {
-      this.patient.lastPeriodDate = newDate; // עדכון התאריך ברמת ה-Parent
+      this.patient.lastPeriodDate = newDate; // Update the last period date in the parent component
       console.log("Updated Last Period Date:", newDate);
     },
   },
@@ -81,51 +66,6 @@ export default {
   padding-top: 80px;
 }
 
-.navbar {
-  background-color: #acd2e7;
-  padding: 15px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.logo {
-  height: 40px;
-}
-
-.nav-left {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.nav-links {
-  list-style: none;
-  display: flex;
-  gap: 20px;
-  margin: 0;
-  padding: 0;
-}
-
-.nav-links li a {
-  text-decoration: none;
-  color: white;
-  font-weight: bold;
-}
-
-.logout-button {
-  text-decoration: none;
-  color: white;
-  font-weight: bold;
-  padding: 10px 40px;
-}
-
 .tableau-iframe {
   width: 100%;
   height: 700px;
@@ -135,13 +75,12 @@ export default {
 
 .components-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* עד 3 קומפוננטות בשורה */
-  gap: 20px; /* רווחים בין הקומפוננטות */
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Up to 3 components per row */
+  gap: 20px; /* Spacing between components */
   justify-content: center;
   align-items: center;
   max-width: 1200px;
   margin: 20px auto;
   padding: 20px;
 }
-
 </style>

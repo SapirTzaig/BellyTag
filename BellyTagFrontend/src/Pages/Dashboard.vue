@@ -1,16 +1,5 @@
 <template>
   <div class="dashboard">
-    <nav class="navbar">
-      <div class="nav-left">
-        <img :src="logoImage" alt="Logo" class="logo" />
-        <ul class="nav-links">
-          <li><router-link to="/user-details">User Details</router-link></li>
-          <li><router-link :to="`/upload/${barcode}`">Upload File</router-link></li>
-        </ul>
-      </div>
-      <a href="#" @click="logout" class="logout-button">Log Out</a>
-    </nav>
-
     <h1>Doctor Dashboard</h1>
     
     <!-- Display list of patients -->
@@ -68,7 +57,6 @@ export default {
       patientId: "",
       patients: [], // List of patients
       patientData: null,
-      logoImage: "@/Assets/logo.png", // Ensure the logo image is properly imported
       barcode: sessionStorage.getItem("barcode") || "", // Barcode from sessionStorage
     };
   },
@@ -139,51 +127,6 @@ export default {
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: #f9f9f9;
-}
-
-.navbar {
-  background-color: #acd2e7;
-  padding: 15px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.logo {
-  height: 40px;
-}
-
-.nav-left {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.nav-links {
-  list-style: none;
-  display: flex;
-  gap: 20px;
-  margin: 0;
-  padding: 0;
-}
-
-.nav-links li a {
-  text-decoration: none;
-  color: white;
-  font-weight: bold;
-}
-
-.logout-button {
-  text-decoration: none;
-  color: white;
-  font-weight: bold;
-  padding: 10px 40px;
 }
 
 input {

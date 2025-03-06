@@ -326,24 +326,26 @@ def login():
 # Personal data route - retrieves user information by u_id
 @app.route('/personal', methods=['GET'])
 def get_personal_data():
-    if request.method == 'GET':
-        data = request.get_json()
-        u_id = request.args.get('barcode')
+    barcode = request.args.get('barcode')  # Get barcode from the query parameter
 
-        with open(r"BellyTagBackend\DB\patients.csv", mode='r') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                if row['u_id'] == u_id:
-                    return {
-                        "Name": row.get('name'),
-                        "Age": row.get('age'),
-                        "Email": row.get('mail'),
-                        "Gender": row.get('gender'),
-                        "Status": row.get('status') + " + " + row.get('children') if row.get('children')else row.get('status'),
-                        "DoB": row.get('date')
-                    }, 200
+    if not barcode:
+        return "Barcode is missing", 400  # Return error if barcode is not provided
 
-            return "User not found", 404
+    # Open the CSV file and search for the user
+    with open(r"BellyTagBackend\DB\patients.csv", mode='r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            if row['u_id'] == barcode:
+                return {
+                    "Name": row.get('name'),
+                    "Age": row.get('age'),
+                    "Email": row.get('mail'),
+                    "Gender": row.get('gender'),
+                    "Status": row.get('status') + " + " + row.get('children') if row.get('children') else row.get('status'),
+                    "DoB": row.get('date')
+                }, 200
+
+    return "User not found", 404
 
 
 @app.route('/file', methods=['POST'])

@@ -8,18 +8,19 @@
 
       <!-- Barcode Image -->
       <img :src="barcodeImage" alt="Barcode" class="barcode" />
+      
     </div>
 
     <!-- User Info Section -->
     <div class="info-section">
       <h3>User Details</h3>
       <div class="info">
-        <p><strong>Name:</strong> {{ user.name }}</p>
-        <p><strong>Age:</strong> {{ user.age }}</p>
-        <p><strong>Date of Birth:</strong> {{ user.date_of_birth }}</p>
-        <p><strong>Gender:</strong> {{ user.gender }}</p>
-        <p><strong>Status:</strong> {{ user.status }}</p>
-        <p><strong>Email:</strong> {{ user.mail }}</p>
+        <p><strong>Name:</strong> {{ user.Name }}</p>
+        <p><strong>Age:</strong> {{ user.Age }}</p>
+        <p><strong>Date of Birth:</strong> {{ user.DoB }}</p>
+        <p><strong>Gender:</strong> {{ user.Gender }}</p>
+        <p><strong>Status:</strong> {{ user.Status }}</p>
+        <p><strong>Email:</strong> {{ user.Email }}</p>
       </div>
     </div>
   </div>
@@ -39,26 +40,36 @@ export default {
         Gender: '',
         Status: '',
         Email: '',
+        barcode: sessionStorage.getItem('barcode') || '', // Barcode from sessionStorage
       },
       defaultAvatar, // Default user avatar
       barcodeImage,  // Barcode image
     };
   },
   async created() {
-    // Retrieve the user ID or token from sessionStorage
+    // Retrieve the barcode from sessionStorage
     const barcode = sessionStorage.getItem('barcode');
     
-    // If user is not logged in, redirect to login page
+    // If barcode is not found (user is not logged in), redirect to login page
     if (!barcode) {
       this.$router.push('/'); // Redirect to login page
       return;
     }
-    
-    // Fetch user data from API using the stored userId
+
     try {
-      const response = await fetch(`http://localhost:5000/personal`); // Make API request to get user details
+      const response = await fetch(`http://localhost:5000/personal?barcode=${barcode}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" }
+    });
+
+
+      // Parse the response data
       const data = await response.json();
+      console.log(data);
+
+
       if (response.ok) {
+        // Populate user details with the data received
         this.user.Name = data.Name;
         this.user.Age = data.Age;
         this.user.DoB = data.DoB;

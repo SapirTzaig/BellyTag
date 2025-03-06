@@ -11,8 +11,8 @@ import NuchalTranslucencyDetails from './Pages/NuchalTranslucencyDetails.vue';
 
 
 const routes = [
-  { path: '/register', component: RegisterPage },
-  { path: '/', component: Login },
+  { path: '/register', name: 'register', component: RegisterPage },
+  { path: '/', name: 'login', component: Login },
   { path: '/upload/:barcode', component: Upload },
   { path: '/dashboard', component: Dashboard },
   { path: '/patient/:barcode', component: PatientScreen },

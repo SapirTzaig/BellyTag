@@ -75,7 +75,7 @@
       });
   
       const goBack = () => {
-        router.push("/");
+        router.push("/patient/:{barcode}");
       };
   
       return { ntTests, chartData, chartOptions, goBack };
