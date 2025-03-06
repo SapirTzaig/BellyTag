@@ -5,12 +5,13 @@ import hashlib
 CSV_FILE = r"BellyTagBackend\DB\patients.csv"
 
 print(f"DEBUG: CSV File Path: {os.path.exists(CSV_FILE)}")
-# Ensure correct CSV headers
-if not os.path.exists(CSV_FILE):
-    with open(CSV_FILE, mode="w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(['u_id', 'password', 'name', 'mail', 'age', 'gender', 'status', 'children', 'date', 'license'])
-        file.flush()
+
+# # Ensure correct CSV headers
+# if not os.path.exists(CSV_FILE):
+#     with open(CSV_FILE, mode="w", newline="") as file:
+#         writer = csv.writer(file)
+#         writer.writerow(['u_id', 'password', 'name', 'mail', 'age', 'gender', 'status', 'children', 'date', 'license'])
+#         file.flush()
 
 def generate_unique_id(user_id, password):
     """Generate a unique ID for a user using SHA-256."""

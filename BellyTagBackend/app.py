@@ -245,7 +245,7 @@ def insert_to_csv():
 
     if request.method == 'POST':
         data = request.get_json()
-        fisrtName = data.get('firstName')
+        firstName = data.get('firstName')
         lastName = data.get('lastName')
         user_id = data.get('id')
         password = data.get('password')
@@ -262,13 +262,19 @@ def insert_to_csv():
         date_of_birth = data.get('dob')
         children = data.get('children')
         license = data.get('license')
+        last_period = data.get('lastPeriod')
         if license == None:
             license = 0
+            last_period = None
+        
 
         # Save user data along with the unique ID in CSV
-        with open('patients.csv', mode='a', newline='') as file:
+        with open(r"BellyTagBackend\DB\patients.csv", mode='a', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
-            writer.writerow([u_id, password_hash, fisrtName + " " + lastName, mail, age, gender, status, children, date_of_birth, license])
+            
+            # Move to the end of the file before writing
+            file.seek(0, 2)  # Seek to the end of file
+            writer.writerow([u_id, password_hash, firstName + " " + lastName, mail, age, gender, status, children, date_of_birth, last_period, license])
 
 
 
