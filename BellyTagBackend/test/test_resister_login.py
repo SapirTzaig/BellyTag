@@ -2,8 +2,7 @@ import os
 import csv
 import hashlib
 
-CSV_FILE = "c:\\Users\\galev\\OneDrive\\Documents\\GitHub\\BellyTag\\BellyTagBackend\\test\\DB\\patients.csv"
-# CSV_FILE = os.path.join(os.path.dirname(__file__), "DB", "patients.csv")
+CSV_FILE = r"BellyTagBackend\DB\patients.csv"
 
 print(f"DEBUG: CSV File Path: {os.path.exists(CSV_FILE)}")
 # Ensure correct CSV headers
