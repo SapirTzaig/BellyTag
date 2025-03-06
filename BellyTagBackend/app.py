@@ -240,7 +240,7 @@ def generate_unique_id(user_id, password):
     hash_object = hashlib.sha256(combined)
     
     # Get the hexadecimal representation of the hash
-    unique_id = hash_object.hexdigest()
+    unique_id = hash_object.hexdigest()[:10]
 
     return unique_id
 

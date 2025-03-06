@@ -2,31 +2,27 @@
   <div class="register-container">
     <h2>Register</h2>
     <form @submit.prevent="onRegister">
+      <!-- Your form fields here -->
       <div class="form-group">
         <label>First Name:</label>
         <input type="text" v-model="form.firstName" required />
       </div>
-
       <div class="form-group">
         <label>Last Name:</label>
         <input type="text" v-model="form.lastName" required />
       </div>
-
       <div class="form-group">
         <label>ID:</label>
         <input type="text" v-model="form.id" required />
       </div>
-
       <div class="form-group">
         <label>Date of Birth:</label>
         <input type="date" v-model="form.dob" @change="calculateAge" required />
       </div>
-
       <div class="form-group">
         <label>Age:</label>
         <input type="number" v-model="form.age" readonly />
       </div>
-
       <div class="form-group">
         <label>Gender:</label>
         <div class="gender-group">
@@ -36,7 +32,6 @@
           <label for="female">Female</label>
         </div>
       </div>
-
       <div class="form-group">
         <label>Status:</label>
         <select v-model="form.status" required>
@@ -45,22 +40,18 @@
           <option value="Married">Married</option>
         </select>
       </div>
-
       <div v-if="form.status === 'Married'" class="form-group">
         <label>Number of Children:</label>
         <input type="number" v-model="form.children" min="0" />
       </div>
-
       <div class="form-group">
         <label>Email:</label>
         <input type="email" v-model="form.email" required />
       </div>
-
       <div class="form-group">
         <label>Password:</label>
         <input type="password" v-model="form.password" required />
       </div>
-
       <div class="form-group">
         <label>Role:</label>
         <div class="role-group">
@@ -70,18 +61,15 @@
           <label for="patient">Patient</label>
         </div>
       </div>
-
       <div v-if="form.role === 'Doctor'" class="form-group">
         <label>Doctor License Number:</label>
         <input type="text" v-model="form.license" required />
       </div>
-
       <!-- Show only if the user is a Patient -->
       <div v-if="form.role === 'Patient'" class="form-group">
         <label>Date of Last Period:</label>
         <input type="date" v-model="form.lastPeriod" />
       </div>
-
       <div class="buttons">
         <button type="button" class="reset-btn" @click="onReset">Reset</button>
         <button type="submit" :disabled="!isFormValid" class="submit-btn">Submit</button>
@@ -89,9 +77,13 @@
     </form>
   </div>
 
+  <!-- Alert and Download Button -->
   <div v-if="showAlert" class="custom-alert" :class="alertType">
     <p>{{ alertMessage }}</p>
-    <button @click="closeAlert">OK</button>
+    <div class="button-group">
+      <button @click="closeAlert" class="small-btn">OK</button>
+      <button v-if="showDownloadButton" @click="downloadBarcode" class="small-btn">Download Barcode</button>
+    </div>
   </div>
 </template>
 
@@ -115,8 +107,10 @@ export default {
         lastPeriod: null,
       },
       showAlert: false,
+      showDownloadButton: false, // Control visibility of download button
       alertMessage: "",
       alertType: "",
+      barcode: "", // Store the barcode
     };
   },
   computed: {
@@ -163,15 +157,17 @@ export default {
         const response = await fetch("http://localhost:5000/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formToSend)
+          body: JSON.stringify(formToSend),
         });
 
         const data = await response.json();
-        
+
         if (response.ok && data.barcode) {
-          this.alertMessage = `Successfully registered! Your personal barcode is: ${data.barcode}\nPlease keep it safe as you will not be able to retrieve your password!`;
+          this.barcode = data.barcode; // Store the barcode
+          this.alertMessage = `Successfully registered! Your personal barcode is: ${data.barcode}. \nPlease keep it safe as you will not be able to retrieve your password!`;
           this.alertType = "success";
           this.showAlert = true;
+          this.showDownloadButton = true; // Show download button
         } else {
           this.alertMessage = "Registration failed. Please try again.";
           this.alertType = "error";
@@ -191,25 +187,33 @@ export default {
       }
     },
 
+    downloadBarcode() {
+      const blob = new Blob([`Your barcode: ${this.barcode}`], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'barcode.txt';
+      link.click();
+    },
+
     onReset() {
-  this.form = {
-    firstName: "",
-    lastName: "",
-    id: "",
-    dob: "",
-    age: "",
-    gender: "",
-    status: "",
-    children: "",
-    email: "",
-    password: "",
-    role: "",
-    license: null,
-    lastPeriod: null,
-    pregnancyWeek: null
-  };
+      this.form = {
+        firstName: "",
+        lastName: "",
+        id: "",
+        dob: "",
+        age: "",
+        gender: "",
+        status: "",
+        children: "",
+        email: "",
+        password: "",
+        role: "",
+        license: null,
+        lastPeriod: null,
+        pregnancyWeek: null
+      };
+    }
   }
-}
 };
 </script>
 
@@ -253,7 +257,7 @@ input, select {
 
 button {
   padding: 10px;
-  width: 48%;
+  width: 30%;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -274,13 +278,12 @@ button {
   color: white;
 }
 
-/* Align the alert message */
 .custom-alert {
   position: fixed;
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  padding: 15px;
+  padding: 10px;
   border-radius: 5px;
   font-weight: bold;
   z-index: 1000;
@@ -296,4 +299,14 @@ button {
   color: white;
 }
 
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 30px; /* Increased space between OK and Download Barcode buttons */
+}
+
+.small-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+}
 </style>

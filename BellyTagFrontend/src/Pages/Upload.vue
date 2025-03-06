@@ -91,7 +91,7 @@ export default {
             this.analysis = result.analysis;
 
             // Save the file locally (mock for desktop)
-            const filePath = `C:/Users/YourUsername/Desktop/${file.name}`;  // Update this path as needed
+            const filePath = r`C:\Users\sapir\OneDrive\Desktop\saved${file.name}`;  // Update this path as needed
             this.previousUploads.push({
               name: file.name,
               date: new Date().toLocaleString(),
