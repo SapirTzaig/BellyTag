@@ -19,6 +19,7 @@
         Do not have an account yet?
         <router-link to="/register"> Register here</router-link>
         <router-link to="/upload"> Upload here</router-link>
+        <router-link to="/patient/:barcode"> Patient screen here</router-link>
       </div>
     </form>
   </div>
