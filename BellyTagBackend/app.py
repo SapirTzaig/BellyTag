@@ -232,7 +232,7 @@ def generate_unique_id(user_id, password):
     # Get the hexadecimal representation of the hash
     unique_id = hash_object.hexdigest()
 
-    return unique_id, salt
+    return unique_id
 
 # Registration route - generates unique user ID and stores the data
 @app.route('/register', methods=['POST'])
@@ -248,7 +248,7 @@ def insert_to_csv():
         password_hash = bcrypt.hashpw(password.encode('utf-8'), salt)
         
         # Generate unique user ID
-        u_id, _ = generate_unique_id(user_id, password)
+        u_id = generate_unique_id(user_id, password)
 
         mail = data.get('email')
         age = data.get('age')
@@ -264,8 +264,10 @@ def insert_to_csv():
         with open('patients.csv', mode='a', newline='') as file:
             writer = csv.writer(file)
             writer.writerow([u_id, password_hash, fisrtName + " " + lastName, mail, age, gender, status, children, date_of_birth, license])
-        
-        return u_id, 201
+
+
+
+        return {"barcode": u_id}, 201
 
 
 # Login route - verifies user ID and password
@@ -328,6 +330,8 @@ def file_to_attributes():
         attributes = file_to_attributes(file_path, test)
         add_record_to_table(u_id, test, attributes)
         return attributes, 201
+
+
 
 
 if __name__ == '__main__':
