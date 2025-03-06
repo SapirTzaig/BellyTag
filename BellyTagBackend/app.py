@@ -264,7 +264,7 @@ def insert_to_csv():
         with open('patients.csv', mode='a', newline='') as file:
             writer = csv.writer(file)
             writer.writerow([u_id, password_hash, fisrtName + " " + lastName, mail, age, gender, status, children, date_of_birth, license])
-
+        
         return u_id, 201
 
 
