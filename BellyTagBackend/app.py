@@ -9,7 +9,7 @@ import hashlib
 import PyPDF2
 import pdfplumber
 from pdfminer.high_level import extract_text
-import genai
+from google import genai
 import os
 import pytesseract
 from PIL import Image
@@ -290,7 +290,6 @@ def insert_to_csv():
 
         return {
             "barcode": u_id,
-            "path": path
             }, 201
 
 
@@ -348,15 +347,18 @@ def get_personal_data():
 
 
 @app.route('/file', methods=['POST'])
-def file_to_attributes():
+def file():
     if request.method == 'POST':
-        data = request.get_json()
-        u_id = data.get('u_id')
-        test = data.get('test')
-        file_path = data.get('file_path')
 
-        attributes = file_to_attributes(file_path, test)
-        add_record_to_table(u_id, test, attributes)
+        data = request.get_json()
+        u_id = data.get('barcode')
+        file_name = data.get('newFileName')
+        test_name = data.get('testName')
+        file_path = os.path.join(r"C:\Users\sapir\Documents", u_id, file_name)
+
+
+        attributes = file_to_attributes(file_path, test_name)
+        add_record_to_table(u_id, test_name, attributes)
         return attributes, 201
 
 
