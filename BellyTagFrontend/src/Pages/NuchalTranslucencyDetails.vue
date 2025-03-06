@@ -85,18 +85,26 @@
   
   <style scoped>
   .nt-details-container {
-    max-width: 800px;
-    margin: auto;
-    text-align: center;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
   
-  .chart-container {
-    height: 300px;
-    margin-bottom: 20px;
-  }
+.chart-container {
+  height: 250px; /* הגבלת הגובה */
+  max-height: 350px;
+  width: 150%; /* התאמת הרוחב */
+  overflow: hidden;
+  margin-bottom: 40px; /* יותר רווח מהטבלה */
+  display: flex;
+  justify-content: center;
+}
+
+
   
   .nt-table {
-    width: 100%;
+    width: 80%;
     border-collapse: collapse;
     margin-bottom: 20px;
   }

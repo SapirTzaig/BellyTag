@@ -53,6 +53,7 @@
     border-radius: 8px;
     text-align: center;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 250px; 
   }
   
   .nt-value {

@@ -11,24 +11,21 @@
       <a href="#" @click="logout" class="logout-button">Log Out</a>
     </nav>
 
-    <h1>Patient: {{ patient.username || "Loading..." }}</h1>
+    <h1>Patient: {{ patient.username  }}</h1>
 
-    <!-- ✅ קומפוננטה להצגת השבוע של ההריון -->
-    <PregnancyWeek :week="patient.pregnancyWeek" />
-
-    <!-- ✅ קומפוננטה להצגת הבדיקות האחרונות -->
-    <BloodTests />
-
-    <!-- ✅ קומפוננטה להזנת תאריך וסת אחרון -->
-    <LastPeriodDate :date="patient.lastPeriodDate" @update-date="updateLastPeriodDate" />
-
-    <!-- ✅ קומפוננטה להצגת שקיפות עורפית -->
-    <NuchalTranslucencySummary :nt-value="patient.ntValue" />
+    <!-- ✅ עטיפת הקומפוננטות ב-Grid -->
+    <div class="components-grid">
+      <PregnancyWeek :week="patient.pregnancyWeek" />
+      <BloodTests />
+      <LastPeriodDate :date="patient.lastPeriodDate" @update-date="updateLastPeriodDate" />
+      <NuchalTranslucencySummary :nt-value="patient.ntValue" />
+    </div>
 
     <!-- ✅ הצגת הדוח באמצעות iframe -->
     <iframe :src="tableauURL" class="tableau-iframe"></iframe>
   </div>
 </template>
+
 
 <script>
 import logoImage from "@/Assets/logo.png";
@@ -135,4 +132,16 @@ export default {
   border: none;
   margin-top: 20px;
 }
+
+.components-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* עד 3 קומפוננטות בשורה */
+  gap: 20px; /* רווחים בין הקומפוננטות */
+  justify-content: center;
+  align-items: center;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
 </style>
