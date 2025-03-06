@@ -291,7 +291,7 @@ def login():
         password = data.get('password')
 
         # Search for the user in the CSV file
-        with open('patients.csv', mode='r') as file:
+        with open(r"BellyTagBackend\DB\patients.csv", mode='r') as file:
             reader = csv.DictReader(file)
             for row in reader:
                 if row['u_id'] == u_id:
@@ -315,7 +315,7 @@ def get_personal_data():
         data = request.get_json()
         u_id = data.get('u_id')
 
-        with open('patients.csv', mode='r') as file:
+        with open(r"BellyTagBackend\DB\patients.csv", mode='r') as file:
             reader = csv.DictReader(file)
             for row in reader:
                 if row['u_id'] == u_id:
