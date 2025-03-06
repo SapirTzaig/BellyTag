@@ -71,6 +71,11 @@ prenatal_tests = {
     }
 
 
+# Simple hashing function using SHA-256
+def hash_password(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
 def pdf_to_text(pdf_path):
     text = ""
 
@@ -239,19 +244,20 @@ def generate_unique_id(user_id, password):
 
     return unique_id
 
-# Registration route - generates unique user ID and stores the data
+# Registration Route
 @app.route('/register', methods=['POST'])
 def insert_to_csv():
-
+    
     if request.method == 'POST':
         data = request.get_json()
         firstName = data.get('firstName')
         lastName = data.get('lastName')
         user_id = data.get('id')
         password = data.get('password')
-        salt = bcrypt.gensalt()
-        password_hash = bcrypt.hashpw(password.encode('utf-8'), salt)
-        
+
+        # Hash the password before storing it
+        password_hash = hash_password(password)
+
         # Generate unique user ID
         u_id = generate_unique_id(user_id, password)
 
@@ -263,26 +269,21 @@ def insert_to_csv():
         children = data.get('children')
         license = data.get('license')
         last_period = data.get('lastPeriod')
-        if license == None:
+
+        if license is None:
             license = 0
         else:
             last_period = None
-        
 
-        # Save user data along with the unique ID in CSV
+        # Save user data in CSV
         with open(r"BellyTagBackend\DB\patients.csv", mode='a', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
-            
-            # Move to the end of the file before writing
-            file.seek(0, 2)  # Seek to the end of file
-            writer.writerow([u_id, password_hash.decode('utf-8'), firstName + " " + lastName, mail, age, gender, status, children, date_of_birth, last_period, license])
-
-
+            writer.writerow([u_id, password_hash, f"{firstName} {lastName}", mail, age, gender, status, children, date_of_birth, last_period, license])
 
         return {"barcode": u_id}, 201
 
 
-# Login route - verifies user ID and password
+# Login Route
 @app.route('/login', methods=['POST'])
 def login():
     if request.method == 'POST':
@@ -290,25 +291,27 @@ def login():
         u_id = data.get('barcode')
         password = data.get('password')
 
+        # Hash the entered password (same method used during registration)
+        hashed_input_password = hash_password(password)
+
         # Search for the user in the CSV file
-    with open(r"BellyTagBackend\DB\patients.csv", mode='r', encoding='utf-8') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            if row['u_id'] == u_id:
-                # Get the stored password hash from CSV (already a string)
-                stored_hash = row['password'].strip()  # Strip any extra spaces
+        with open(r"BellyTagBackend\DB\patients.csv", mode='r', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                if row['u_id'] == u_id:
+                    stored_hash = row['password'].strip()
 
-                # Verify the password using bcrypt
-                if bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8')):  # Encode both to bytes
-                    license = row.get('license')
-                    if license == "0":  # Ensure license is a string when comparing
-                        return "Doctor", 200
-
-                    return "Patient", 200
-                else:
-                    return "Incorrect password", 401
+                    # Compare hashed passwords
+                    if hashed_input_password == stored_hash:
+                        license = row.get('license')
+                        if license == "0":
+                            return "Doctor", 200
+                        return "Patient", 200
+                    else:
+                        return "Incorrect password", 401
 
         return "User not found", 404
+    
 
 # Personal data route - retrieves user information by u_id
 @app.route('/personal', methods=['GET'])
