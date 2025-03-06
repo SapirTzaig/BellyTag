@@ -287,7 +287,7 @@ def insert_to_csv():
 def login():
     if request.method == 'POST':
         data = request.get_json()
-        u_id = data.get('u_id')
+        u_id = data.get('barcode')
         password = data.get('password')
 
         # Search for the user in the CSV file
