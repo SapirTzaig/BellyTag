@@ -6,7 +6,6 @@
     <div class="form-group">
       <label for="test-selection">Select Test:</label>
       <select v-model="selectedTest" id="test-selection">
-        <!-- Dropdown options for tests -->
         <option value="">Select Test</option>
         <option value="Ultrasound for Fetal Nuchal Translucency">Ultrasound for Fetal Nuchal Translucency</option>
         <option value="Ultrasound for Fetal Nasal Bone Determination">Ultrasound for Fetal Nasal Bone Determination</option>
@@ -20,9 +19,18 @@
       </select>
     </div>
 
-    <!-- File upload input -->
-    <input type="file" accept=".png,.pdf" @change="handleFileUpload" />
+    <!-- File upload input hidden and controlled by Upload button -->
+    <input type="file" accept=".png,.pdf" @change="handleFileUpload" ref="fileInput" style="display: none;"/>
 
+    <!-- Button to trigger file selection -->
+    <button @click="triggerFileInput">Select File</button>
+
+    <!-- Button to trigger file upload -->
+    <button @click="uploadSelectedFile" :disabled="!file">Upload File</button>
+
+    <!-- Reset button to clear file selection -->
+    <button @click="resetFileInput">Reset</button>
+    
     <!-- Toast Notification -->
     <div v-if="toastMessage" class="toast" :class="toastType">
       {{ toastMessage }}
@@ -38,14 +46,21 @@ export default {
       selectedTest: "",
       toastMessage: "",
       toastType: "",
+      file: null,
     };
   },
   mounted() {
-    this.barcode = this.$route.params.barcode; // Get barcode from URL
+    this.barcode = sessionStorage.getItem('barcode');
   },
   methods: {
-    async handleFileUpload(event) {
+    triggerFileInput() {
+      // Trigger the file input dialog
+      this.$refs.fileInput.click();
+    },
+
+    handleFileUpload(event) {
       const file = event.target.files[0];
+      this.file = file;
 
       if (!file) {
         this.showToast("Please select a file to upload.", "error");
@@ -56,18 +71,45 @@ export default {
         this.showToast("Please select a test type before uploading.", "error");
         return;
       }
+    },
 
-      // Generate timestamp and new file name
-      const timestamp = new Date().toISOString().replace(/[-T:.Z]/g, ""); // Format timestamp
-      const newFileName = `${this.selectedTest}_${timestamp}${file.name.slice(file.name.lastIndexOf('.'))}`; // Use file extension
+    uploadSelectedFile() {
+  if (!this.file) {
+    this.showToast("No file selected for upload.", "error");
+    return;
+  }
 
-      // Create FormData
-      const formData = new FormData();
-      formData.append("newFileName", newFileName); // Append new file name
-      formData.append("barcode", this.barcode); // Append barcode from URL
+  // Get the current date and time
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
 
+  // Create the timestamp (YYYYMMDDHHMMSS)
+  const timestamp = `${year}${month}${day}${hours}${minutes}${seconds}`;
+
+  // Generate the new file name with test name and timestamp
+  const newFileName = `${this.selectedTest}_${timestamp}${this.file.name.slice(this.file.name.lastIndexOf('.'))}`;
+
+  // Create FormData
+  const formData = new FormData();
+  formData.append("newFileName", newFileName); // Append new file name
+  formData.append("barcode", this.barcode); // Append barcode from session
+
+  // Create the file object with its data and test name
+  formData.append("file", this.file);
+  formData.append("testName", this.selectedTest);
+
+  this.uploadFile(formData);
+  this.selectedTest = '';
+},
+
+    async uploadFile(formData) {
       try {
-        const response = await fetch("http://localhost:5000/upload/${this.barcode}", {
+        const response = await fetch("http://localhost:5000/file", {
           method: "POST",
           body: formData,
         });
@@ -80,6 +122,11 @@ export default {
       } catch (error) {
         this.showToast(error.message, "error");
       }
+    },
+
+    resetFileInput() {
+      this.$refs.fileInput.value = null; // Reset the file input field
+      this.file = null; // Clear the file object
     },
 
     showToast(message, type) {

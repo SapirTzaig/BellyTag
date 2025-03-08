@@ -8,17 +8,17 @@
 
 <script>
 export default {
-  props: ["lastPeriodDate"], // מקבלת תאריך וסת אחרון מהמערכת
+  props: ["lastPeriodDate"], // Receives the last period date from the system
   computed: {
     pregnancyWeek() {
-      if (!this.lastPeriodDate) return null; // אם אין תאריך וסת אחרון, נחזיר null
+      if (!this.lastPeriodDate) return null; // If no last period date, return null
       const lastPeriod = new Date(this.lastPeriodDate);
       const today = new Date();
-      const diffInDays = (today - lastPeriod) / (1000 * 60 * 60 * 24); // מחשבים מספר ימים
-      return Math.floor(diffInDays / 7); // מחלקים ל-7 כדי לקבל שבועות
+      const diffInDays = (today - lastPeriod) / (1000 * 60 * 60 * 24); // Calculate the difference in days
+      return Math.floor(diffInDays / 7); // Divide by 7 to get the pregnancy week
     },
     defaultPregnancyWeek() {
-      // ברירת מחדל - אם אין נתון, נציג שהמטופלת בשבוע 8
+      // Default value if there is no date: show estimated week as 0
       return 0;
     },
   },
@@ -44,7 +44,7 @@ p {
   color: #4CAF50;
 }
 .default-text {
-  color: #f39c12; /* צבע כתום כדי להבליט שזה ערך משוער */
+  color: #f39c12; /* Orange color to highlight estimated week */
   font-size: 18px;
   font-weight: bold;
 }

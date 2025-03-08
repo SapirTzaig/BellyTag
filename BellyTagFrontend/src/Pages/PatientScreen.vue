@@ -2,11 +2,10 @@
   <div class="patient-screen">
     <h1>Patient: {{ patient.username }}</h1>
 
-    <!-- ✅ עטיפת הקומפוננטות ב-Grid -->
     <div class="components-grid">
-      <PregnancyWeek :week="patient.pregnancyWeek" />
+      <PregnancyWeek :lastPeriodDate="patient.LastPeriodDate" />
       <BloodTests />
-      <LastPeriodDate :date="patient.lastPeriodDate" @update-date="updateLastPeriodDate" />
+      <LastPeriodDate :lastPeriodDate="patient.LastPeriodDate" @update-date="updateLastPeriodDate" />
       <NuchalTranslucencySummary :nt-value="patient.ntValue" />
     </div>
   </div>
@@ -17,14 +16,13 @@ import logoImage from "@/Assets/logo.png";
 import PregnancyWeek from "@/Components/PregnancyWeek.vue";
 import BloodTests from "@/Components/BloodTests.vue";
 import LastPeriodDate from "@/Components/LastPeriodDate.vue";
-import NuchalTranslucencySummary from "@/Components/NuchalTranslucencySummary.vue"; // ✅ ייבוא הקומפוננטה החדשה
-
+import NuchalTranslucencySummary from "@/Components/NuchalTranslucencySummary.vue"; 
 export default {
   components: {
     PregnancyWeek,
     BloodTests,
     LastPeriodDate,
-    NuchalTranslucencySummary, // ✅ הוספת הקומפוננטה החדשה
+    NuchalTranslucencySummary, 
   },
   data() {
     return {
@@ -36,29 +34,35 @@ export default {
   },
   async created() {
     try {
-      const patientId = this.$route.params.id;
-      const apiUrl = `http://127.0.0.1:8080/patient/${patientId}`;
-      const response = await fetch(apiUrl);
+      const patientId = sessionStorage.getItem('barcode');
+      const response = await fetch(`http://localhost:5000/personal?barcode=${patientId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-      this.patient = await response.json();
+      const data = await response.json();
+
+      this.patient = {
+        username: data.Name || "Unknown",
+        PregnancyWeek: data.PregnancyWeek || 0,  // Now fetched from backend
+        LastPeriodDate: data.LastPeriodDate || "N/A",
+        ntValue: data.NuchalTranslucencyValue || "N/A",
+      };
+      this.$forceUpdate();
     } catch (error) {
       console.error("❌ Error fetching patient details:", error);
     }
   },
   methods: {
     logout() {
-      // Clear sessionStorage and redirect to login page
       sessionStorage.removeItem("barcode");
       alert("Logged out successfully!");
       this.$router.push("/"); // Redirect to login page
     },
-    updateLastPeriodDate(newDate) {
-      this.patient.lastPeriodDate = newDate; // Update the last period date in the parent component
-      console.log("Updated Last Period Date:", newDate);
-    },
   },
 };
 </script>
+
 
 <style scoped>
 .patient-screen {

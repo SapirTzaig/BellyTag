@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash
+from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
 from boto3.dynamodb.conditions import Key, Attr
 from botocore.exceptions import ClientError
 import boto3
@@ -14,6 +14,9 @@ import os
 import pytesseract
 from PIL import Image
 from flask_cors import CORS
+import datetime
+from werkzeug.utils import secure_filename
+
 
 
 
@@ -21,6 +24,12 @@ from flask_cors import CORS
 app = Flask(__name__)
 
 CORS(app)
+
+# Set up the upload folder and allowed file types
+UPLOAD_FOLDER = r'C:\Users\sapir\Documents'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 ### file functions
 
@@ -326,44 +335,102 @@ def login():
 # Personal data route - retrieves user information by u_id
 @app.route('/personal', methods=['GET'])
 def get_personal_data():
-    barcode = request.args.get('barcode')  # Get barcode from the query parameter
-
+    barcode = request.args.get('barcode')
     if not barcode:
-        return "Barcode is missing", 400  # Return error if barcode is not provided
+        return jsonify({"error": "Barcode is missing"}), 400
 
-    # Open the CSV file and search for the user
-    with open(r"BellyTagBackend\DB\patients.csv", mode='r') as file:
+    with open(r"BellyTagBackend\DB\patients.csv", mode='r', encoding='utf-8') as file:
         reader = csv.DictReader(file)
         for row in reader:
             if row['u_id'] == barcode:
-                return {
-                    "Name": row.get('name'),
-                    "Age": row.get('age'),
-                    "Email": row.get('mail'),
-                    "Gender": row.get('gender'),
-                    "Status": row.get('status') + " + " + row.get('children') if row.get('children') else row.get('status'),
-                    "DoB": row.get('date')
-                }, 200
+                # Get last period date and calculate pregnancy week
+                last_period_str = row.get('last_period', '')  # Fetch date as string
+                pregnancy_week = 0  # Default value
 
-    return "User not found", 404
+                if last_period_str:  # If the date exists
+                    try:
+                        last_period_date = datetime.datetime.strptime(last_period_str, "%Y-%m-%d").date()
+                        current_date = datetime.date.today()
+                        days_since_last_period = (current_date - last_period_date).days
+                        pregnancy_week = max(0, days_since_last_period // 7)  # Ensure non-negative
+                    except ValueError:
+                        print(f"Invalid date format: {last_period_str}")
 
+                return jsonify({
+                    "Name": row.get('name', 'Unknown'),
+                    "Age": row.get('age', 'N/A'),
+                    "Email": row.get('mail', ''),
+                    "Gender": row.get('gender', ''),
+                    "Status": row.get('status', '') + (" + " + row.get('children') if row.get('children') else ''),
+                    "DoB": row.get('date', ''),  
+                    "PregnancyWeek": pregnancy_week,  # Calculated dynamically
+                    "LastPeriodDate": last_period_str,
+                }), 200
+
+    return jsonify({"error": "User not found"}), 404
+
+
+# Function to check if file type is allowed
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/file', methods=['POST'])
 def file():
-    if request.method == 'POST':
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    
+    if file and allowed_file(file.filename):
+        barcode = request.form.get('barcode')
+        file_name = request.form.get('newFileName')
+        test_name = request.form.get('testName')
 
-        data = request.get_json()
-        u_id = data.get('barcode')
-        file_name = data.get('newFileName')
-        test_name = data.get('testName')
-        file_path = os.path.join(r"C:\Users\sapir\Documents", u_id, file_name)
+        # Create the directory for the user based on their barcode if it doesn't exist
+        user_folder = os.path.join(app.config['UPLOAD_FOLDER'], barcode)
+        if not os.path.exists(user_folder):
+            os.makedirs(user_folder)
+
+        # Save the file in the appropriate directory with the new file name
+        file_path = os.path.join(user_folder, secure_filename(file_name))
+        file.save(file_path)
+
+        # Process the file (e.g., extract attributes) and save to the database
+        # You can add your logic for processing the file here
+
+        return jsonify({"message": "File uploaded successfully!", "file_path": file_path}), 201
+    else:
+        return jsonify({"error": "Invalid file type"}), 400
 
 
-        attributes = file_to_attributes(file_path, test_name)
-        add_record_to_table(u_id, test_name, attributes)
-        return attributes, 201
+def patient_exists(barcode):
+    """Check if the patient barcode exists in patients.csv"""
+    file_path = os.path.join("BellyTagBackend", "DB", "patients.csv")
 
+    try:
+        with open(file_path, newline="", encoding="utf-8") as csvfile:
+            reader = csv.DictReader(csvfile, skipinitialspace=True)
+            for row in reader:
+                if row.get("u_id") == barcode:
+                    return True
+        return False
+    except FileNotFoundError:
+        return False
 
+@app.route("/check_patient", methods=["POST"])
+def check_patient():
+    data = request.json
+    barcode = data.get("barcode")
+
+    if not barcode:
+        return jsonify({"error": "Barcode is required"}), 400
+
+    if patient_exists(barcode):
+        return jsonify({"exists": True})
+    else:
+        return jsonify({"exists": False}), 404
 
 
 if __name__ == '__main__':

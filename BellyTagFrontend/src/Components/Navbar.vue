@@ -3,13 +3,12 @@
       <div class="nav-left">
         <img :src="logoImage" alt="Logo" class="logo" />
         <ul class="nav-links">
-        <li v-if="userRole === 'doctor'">
-          <router-link :to="`/dashboard`">Main</router-link>
+          <li v-if="userRole === 'doctor'">
+          <router-link to="/dashboard">Main</router-link>
         </li>
         <li v-if="userRole === 'patient'">
           <router-link :to="`/patient/${barcode}`">Main</router-link>
         </li>
-          <li>Main</li>
           <li><router-link to="/user-details">User Details</router-link></li>
           <li><router-link :to="`/upload/${barcode}`">Upload File</router-link></li>
         </ul>
@@ -36,6 +35,14 @@
         this.$router.push("/"); // Redirect to the login page
       },
     },
+    computed: {
+      isDoctor() {
+        return sessionStorage.getItem('role') === 'doctor';
+      },
+      isPatient() {
+        return sessionStorage.getItem('role') === 'patient';
+      }
+    }
   };
   </script>
   
