@@ -9,7 +9,6 @@ import hashlib
 import PyPDF2
 import pdfplumber
 from pdfminer.high_level import extract_text
-from google import genai
 import os
 import pytesseract
 from PIL import Image
@@ -17,6 +16,12 @@ from flask_cors import CORS
 import datetime
 from werkzeug.utils import secure_filename
 import json
+import google.generativeai as genai
+from decimal import Decimal
+import re
+
+
+
 
 
 
@@ -141,41 +146,63 @@ def file_to_attributes(file_path, prenatal_test):
     # Extract text
     # pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-    pdf_text = text.replace("\n", " ")
-    pdf_text += "\n\nI want you to get from the text the following parameters and their values " \
+    prompt = text.replace("\n", " ")
+    prompt += "\n\nI want you to get from the text the following parameters and their values " \
                 "(the desired type is provided) and the metric (mm/cm/bpm etc...). " \
                 "If something doesn't exist, put None instead:\n"
 
     for key, value, high, low, unit in kvp:
-        pdf_text += f"name: {key} value: {value} min: {low} max: {high} unit: {unit}\n"
+        prompt += f"name: {key} value: {value} min: {low} max: {high} unit: {unit}\n"
 
-    pdf_text += "I want only the parameters, values of the parameters, high values and low values with the ones" \
+    prompt += "I want only the parameters, values of the parameters, high values and low values with the ones" \
                 " I gave you, and the metric, no * or bullet points or the opening line, i want a list of the" \
                 " example of the format I want: [{ 'name': 'Hemoglobin', 'value': 11, 'min': 12, 'max': 16, 'unit': 'MoM' },...]" \
                 "you should return it to me as a Text (not json), and I want to be able to take it as it is and transform" \
                 " it to a list and jsonfy it."
+    
+    genai.configure(api_key="AIzaSyBpT6qJ1A28dh2XQDnmSiNL4hIl-P94jFU")
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+    response = model.generate_content(prompt)
 
-    client = genai.Client(api_key="AIzaSyBpT6qJ1A28dh2XQDnmSiNL4hIl-P94jFU")
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=pdf_text,
-    )
+    # client = genai.Client(api_key="AIzaSyBpT6qJ1A28dh2XQDnmSiNL4hIl-P94jFU")
+    # response = client.models.generate_content(
+    #     model="gemini-2.0-flash",
+    #     contents=prompt,
+    # )
 
     # print(response.to_json_dict())
     text = response.text[8:-4].replace("'", '"')
     data = json.loads(text)
     # Print the result
-
+    print(data)
     return data
 
 
 ################## db functions ####################
+from decimal import Decimal
+import boto3
+from botocore.exceptions import ClientError
+
 def add_record_to_table(u_id, iso_date, test_name, attributes, table_name="Bellytag", region='eu-central-1'):
     dynamodb = boto3.resource('dynamodb', region_name=region)
     table = dynamodb.Table(table_name)
 
     if not test_name or not attributes:
         return "Not valid test name or attributes!"
+
+    # Function to recursively convert float values in the attributes to Decimal
+    def convert_to_decimal(obj):
+        if isinstance(obj, dict):
+            return {k: convert_to_decimal(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [convert_to_decimal(v) for v in obj]
+        elif isinstance(obj, float):
+            return Decimal(str(obj))  # Convert float to Decimal
+        return obj
+
+    # Convert all float values in the attributes to Decimal
+    attributes = convert_to_decimal(attributes)
 
     try:
         # Check if the u_id and iso_date combination exists
@@ -192,14 +219,17 @@ def add_record_to_table(u_id, iso_date, test_name, attributes, table_name="Belly
             update_expression = "SET test_name = :test_name, attributes = :attributes"
             expression_attribute_values = {":test_name": test_name, ":attributes": attributes}
 
+        # Perform the update operation
         table.update_item(
             Key={'u_id': u_id, 'date': iso_date},
             UpdateExpression=update_expression,
             ExpressionAttributeValues=expression_attribute_values
         )
+        print(response)
 
     except ClientError as e:
         return f"Error: {e.response['Error']['Message']}"
+
 
 
 def get_tests_by_name(u_id, test_name, table_name="Bellytag", region='eu-central-1'):
@@ -412,11 +442,13 @@ def file():
             # You can add your logic for processing the file here
 
             file = get_updated_file(os.path.join(app.config['UPLOAD_FOLDER'], barcode), test_name)
-            if file:
+            # if file:
                 
-                res = file_to_attributes(file, test_name)
-                iso_date = file_name.split("-")[-1]
-                add_record_to_table(barcode, iso_date, test_name, res)
+            res = file_to_attributes(file_path, test_name)
+            pattern = r'(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)'
+            match = re.search(pattern, file_name)
+            iso_date = match.group(0)
+            add_record_to_table(barcode, iso_date, test_name, res)
 
 
             return jsonify({"message": "File uploaded successfully!", "file_path": file_path}), 201
