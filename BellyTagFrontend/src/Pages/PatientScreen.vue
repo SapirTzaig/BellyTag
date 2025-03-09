@@ -1,23 +1,51 @@
 <template>
   <div class="patient-screen">
-    <h1>Patient: {{ patient.username }}</h1>
+    <h1 class="patient-title">
+      <span>Welcome,</span> {{ patient.username }} 💙
+    </h1>
+    <p class="subtitle">Your Pregnancy Dashboard</p>
 
     <div class="components-grid">
-      <PregnancyWeek :lastPeriodDate="patient.LastPeriodDate" />
-      <LastPeriodDate :lastPeriodDate="patient.LastPeriodDate" @update-date="updateLastPeriodDate" />
-      <NuchalTranslucencySummary :nt-value="patient.ntValue" />
-      <NasalBoneSummary :nasalBone="patient.nasalBone" />
-      <CheckList />
-      <BloodTests />
-      <GBSTest :gbsResult="patient.gbsResult" />
-      <ScreeningAccuracy :falsePositiveRisk="patient.falsePositiveRisk" :falseNegativeRisk="patient.falseNegativeRisk" />
-      <FollowUpTests :ultrasoundNeeded="patient.ultrasoundNeeded" :amniocentesisNeeded="patient.amniocentesisNeeded" />
-      <AbnormalIndications :indications="patient.abnormalIndications" />
+      <!-- 🔹 בדיקות הריון עיקריות -->
+      <div class="grid-section">
+        <h2>Pregnancy Overview</h2>
+        <div class="grid-container pregnancy-grid">
+          <PregnancyWeek :lastPeriodDate="patient.LastPeriodDate" />
+          <LastPeriodDate :lastPeriodDate="patient.LastPeriodDate" @update-date="updateLastPeriodDate" />
+          <NuchalTranslucencySummary :nt-value="patient.ntValue" />
+          <NasalBoneSummary :nasalBone="patient.nasalBone" />
+        </div>
+      </div>
+      
+      <!-- 🔹 רשימת משימות (CheckList) -->
+      <div class="grid-section full-width">
+        <CheckList />
+      </div>
 
+      <!-- 🔹 בדיקות מעבדה -->
+      <div class="grid-section">
+        <h2>Laboratory Tests</h2>
+        <div class="grid-container">
+          <BloodTests />
+          <GBSTest :gbsResult="patient.gbsResult" />
+        </div>
+      </div>
 
+      <!-- 🔹 אינדיקציות חריגות ומעקב -->
+      <div class="grid-section">
+        <h2>Follow-up & Risk Screening</h2>
+        <div class="grid-container">
+          <ScreeningAccuracy :falsePositiveRisk="patient.falsePositiveRisk" :falseNegativeRisk="patient.falseNegativeRisk" />
+          <FollowUpTests :ultrasoundNeeded="patient.ultrasoundNeeded" :amniocentesisNeeded="patient.amniocentesisNeeded" />
+          <AbnormalIndications :indications="patient.abnormalIndications" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
+
+
+
 
 <script>
 import logoImage from "@/Assets/logo.png";
@@ -87,17 +115,52 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 }
 
 .components-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* התאמה דינמית */
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
   max-width: 1200px;
   width: 100%;
   padding: 20px;
 }
 
+/* 🔹 הפרדה בין קבוצות שונות של בדיקות */
+.grid-section {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* 🔹 עיצוב הכותרות */
+.grid-section h2 {
+  margin-bottom: 15px;
+  color: #007bff;
+  font-size: 1.4em;
+}
+
+/* 🔹 גריד פנימי לכל קבוצה */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+/* 🔹 שינוי הגריד של Pregnancy Overview ל-4 עמודות */
+.pregnancy-grid {
+  grid-template-columns: repeat(4, 1fr); /* 4 עמודות אחידות */
+}
+
+/* 🔹 הצ'קליסט יתפרס על כל הרוחב */
+.full-width {
+  grid-column: span 2;
+}
+
+/* 🔹 עיצוב אחיד לקומפוננטות */
 .component-item {
   background: white;
   padding: 20px;
@@ -107,31 +170,8 @@ export default {
 }
 
 /* 🎨 קביעת גדלים לפי תוכן */
-.pregnancy-week {
+.pregnancy-week, .last-period, .nuchal-translucency, .nasal-bone {
   grid-column: span 1;
-}
-
-.blood-tests {
-  grid-column: span 1;
-}
-
-.last-period {
-  grid-column: span 1;
-}
-
-.nuchal-translucency {
-  grid-column: span 1;
-}
-
-.nasal-bone {
-  grid-column: span 1;
-  min-height: 150px;
-}
-
-.checklist {
-  grid-column: span 2;
-  width: 100%;
-  min-height: 300px;
 }
 
 /* 🎨 צבעים לתוצאות */
@@ -144,4 +184,26 @@ export default {
   color: red;
   font-weight: bold;
 }
+
+.patient-title {
+  font-size: 28px;
+  font-weight: bold;
+  text-align: center;
+  color: #007bff;
+  margin-bottom: 5px;
+}
+
+.patient-title span {
+  font-size: 24px;
+  color: #2c3e50;
+}
+
+.subtitle {
+  font-size: 18px;
+  color: #555;
+  text-align: center;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
 </style>
