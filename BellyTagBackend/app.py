@@ -33,33 +33,32 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 ### file functions
-
 prenatal_tests = {
-    "Ultrasound_for_Fetal_Nuchal_Translucency": [
+    "Ultrasound for Fetal Nuchal Translucency": [
         ("Nuchal Translucency", "float", 3.0, 1.0, "mm"),
         ("Crown Rump Length", "float", 85.0, 30.0, "mm"),
         ("Fetal Heart Rate", "float", 180.0, 110.0, "bpm"),
         ("Biparietal diameter", "float", 90.0, 30.0, "mm"),
     ],
-    "Ultrasound_for_Fetal_Nasal_Bone_Determination": [
+    "Ultrasound for Fetal Nasal Bone Determination": [
         ("Nasal Bone Visible", "boolean", "normal", "normal", "present/absent")
     ],
-    "Maternal_Serum_(Blood)_Tests": [
+    "Maternal Serum (Blood) Tests": [
         ("Pregnancy Associated Plasma Protein A", "float", 2.0, 0.5, "MoM"),
         ("Human Chorionic Gonadotropin", "float", 2.5, 0.5, "MoM")
     ],
-    "Genetic_Screening_Recommendation": [
+    "Genetic Screening Recommendation": [
         ("Genetic Counseling Recommended", "boolean", "normal", "normal", "needed/not needed"),
         ("Additional Testing Needed", "boolean", "normal", "normal", "needed/not needed"),
         ("Additional Tests", "list", "normal", "normal", "number of tests")
     ],
-    "Multiple_Marker_Blood_Tests_(Second_Trimester)": [
+    "Multiple Marker Blood Tests (Second Trimester)": [
         ("AFP Screening", "float", 2.5, 0.5, "MoM"),
         ("Estriol", "float", 2.5, 0.5, "MoM"),
         ("Inhibin", "float", 2.0, 0.5, "MoM"),
         ("Human Chorionic Gonadotropin", "float", 3.0, 0.5, "MoM")
     ],
-    "Possible_Abnormal_Indications": [
+    "Possible Abnormal Indications": [
         ("Abnormal AFP", "boolean", "normal", "normal", "abnormal/normal"),
         ("Miscalculated Due Date", "boolean", "normal", "normal", "correct/incorrect"),
         ("Fetal Abdominal Wall Defects", "boolean", "normal", "normal", "present/absent"),
@@ -67,19 +66,18 @@ prenatal_tests = {
         ("Open Neural Tube Defects", "boolean", "normal", "normal", "present/absent"),
         ("Multiple Fetuses Detected", "boolean", "normal", "normal", "detected/not detected")
     ],
-    "Follow-up_Testing": [
+    "Follow-up Testing": [
         ("Ultrasound Recommended", "boolean", "normal", "normal", "needed/not needed"),
         ("Amniocentesis Needed", "boolean", "normal", "normal", "needed/not needed")
     ],
-    "Screening_Accuracy": [
+    "Screening Accuracy": [
         ("False Positive Risk", "float", 5.0, 1.0, "%"),
         ("False Negative Risk", "float", 5.0, 1.0, "%")
     ],
-    "Group_B_Streptococcus_Presence": [
+    "Group B Streptococcus Presence": [
         ("Result", "boolean", "normal", "normal", "positive/negative")
     ]
 }
-
 
 
 # Simple hashing function using SHA-256
