@@ -1,0 +1,3 @@
+id,firstName,lastName,dob,age,gender,status,children,email,password,role,license,lastPeriod
+"3924082d315785521bcd81c9d64b1fef881e412a034864787126bfb8d3586cd6","Alice","Smith","1984-05-10","40","Female","Married","2","alice@example.com","pass1","Doctor","12345",""
+"7c4bf74ea9f7cc7bcbe35c18ce01eca9d54c899c400e60052fb65bf0fa76091e","Bob","Johnson","1994-02-25","30","Male","Single","0","bob@example.com","pass2","Patient","","2024-01-15"
