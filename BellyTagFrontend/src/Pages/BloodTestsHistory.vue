@@ -25,7 +25,7 @@
   </template>
   
   <script>
-  import bloodTestsData from "@/data/blood_tests_data.json"; // טעינת הנתונים מה-JSON
+  import bloodTestsData from "@/Assets/blood_tests_data.json"; // טעינת הנתונים מה-JSON
   
   export default {
     data() {
