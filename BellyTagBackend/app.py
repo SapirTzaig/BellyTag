@@ -9,13 +9,14 @@ import hashlib
 import PyPDF2
 import pdfplumber
 from pdfminer.high_level import extract_text
-import genai
+from google import genai
 import os
 import pytesseract
 from PIL import Image
 from flask_cors import CORS
 import datetime
 from werkzeug.utils import secure_filename
+import json
 
 
 
@@ -34,50 +35,51 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ### file functions
 
 prenatal_tests = {
-        "Ultrasound for Fetal Nuchal Translucency": [
-            ("Nuchal Translucency", "float"),
-            ("Crown Rump Length", "float"),
-            ("Fetal Heart Rate", "float"),
-            ("Biparietal diameter", "float"),
-        ],
-        "Ultrasound for Fetal Nasal Bone Determination": [
-            ("Nasal Bone Visible", "boolean")
-        ],
-        "Maternal Serum (Blood) Tests": [
-            ("Pregnancy Associated Plasma Protein A", "float"),
-            ("Human Chorionic Gonadotropin", "float")
-        ],
-        "Genetic Screening Recommendation": [
-            ("Genetic Counseling Recommended", "boolean"),
-            ("Additional Testing Needed", "boolean"),
-            ("Additional Tests", "list")
-        ],
-        "Multiple Marker Blood Tests (Second Trimester)": [
-            ("AFP Screening", "float"),
-            ("Estriol", "float"),
-            ("Inhibin", "float"),
-            ("Human Chorionic Gonadotropin", "float")
-        ],
-        "Possible Abnormal Indications": [
-            ("Abnormal AFP", "boolean"),
-            ("Miscalculated Due Date", "boolean"),
-            ("Fetal Abdominal Wall Defects", "boolean"),
-            ("Chromosomal Abnormalities", "boolean"),
-            ("Open Neural Tube Defects", "boolean"),
-            ("Multiple Fetuses Detected", "boolean")
-        ],
-        "Follow-up Testing": [
-            ("Ultrasound Recommended", "boolean"),
-            ("Amniocentesis Needed", "boolean")
-        ],
-        "Screening Accuracy": [
-            ("False Positive Risk", "float"),
-            ("False Negative Risk", "float")
-        ],
-        "Group B Streptococcus Presence": [
-            ("Result", "boolean")
-        ]
-    }
+    "Ultrasound_for_Fetal_Nuchal_Translucency": [
+        ("Nuchal Translucency", "float", 3.0, 1.0, "mm"),
+        ("Crown Rump Length", "float", 85.0, 30.0, "mm"),
+        ("Fetal Heart Rate", "float", 180.0, 110.0, "bpm"),
+        ("Biparietal diameter", "float", 90.0, 30.0, "mm"),
+    ],
+    "Ultrasound_for_Fetal_Nasal_Bone_Determination": [
+        ("Nasal Bone Visible", "boolean", "normal", "normal", "present/absent")
+    ],
+    "Maternal_Serum_(Blood)_Tests": [
+        ("Pregnancy Associated Plasma Protein A", "float", 2.0, 0.5, "MoM"),
+        ("Human Chorionic Gonadotropin", "float", 2.5, 0.5, "MoM")
+    ],
+    "Genetic_Screening_Recommendation": [
+        ("Genetic Counseling Recommended", "boolean", "normal", "normal", "needed/not needed"),
+        ("Additional Testing Needed", "boolean", "normal", "normal", "needed/not needed"),
+        ("Additional Tests", "list", "normal", "normal", "number of tests")
+    ],
+    "Multiple_Marker_Blood_Tests_(Second_Trimester)": [
+        ("AFP Screening", "float", 2.5, 0.5, "MoM"),
+        ("Estriol", "float", 2.5, 0.5, "MoM"),
+        ("Inhibin", "float", 2.0, 0.5, "MoM"),
+        ("Human Chorionic Gonadotropin", "float", 3.0, 0.5, "MoM")
+    ],
+    "Possible_Abnormal_Indications": [
+        ("Abnormal AFP", "boolean", "normal", "normal", "abnormal/normal"),
+        ("Miscalculated Due Date", "boolean", "normal", "normal", "correct/incorrect"),
+        ("Fetal Abdominal Wall Defects", "boolean", "normal", "normal", "present/absent"),
+        ("Chromosomal Abnormalities", "boolean", "normal", "normal", "detected/not detected"),
+        ("Open Neural Tube Defects", "boolean", "normal", "normal", "present/absent"),
+        ("Multiple Fetuses Detected", "boolean", "normal", "normal", "detected/not detected")
+    ],
+    "Follow-up_Testing": [
+        ("Ultrasound Recommended", "boolean", "normal", "normal", "needed/not needed"),
+        ("Amniocentesis Needed", "boolean", "normal", "normal", "needed/not needed")
+    ],
+    "Screening_Accuracy": [
+        ("False Positive Risk", "float", 5.0, 1.0, "%"),
+        ("False Negative Risk", "float", 5.0, 1.0, "%")
+    ],
+    "Group_B_Streptococcus_Presence": [
+        ("Result", "boolean", "normal", "normal", "positive/negative")
+    ]
+}
+
 
 
 # Simple hashing function using SHA-256
@@ -85,12 +87,12 @@ def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
 
 
-def pdf_to_text(pdf_path):
+def file_to_text(file_path):
     text = ""
 
     # Try extracting text using PyPDF2
     try:
-        with open(pdf_path, "rb") as file:
+        with open(file_path, "rb") as file:
             reader = PyPDF2.PdfReader(file)
             for page in reader.pages:
                 page_text = page.extract_text()
@@ -102,7 +104,7 @@ def pdf_to_text(pdf_path):
     # If PyPDF2 fails, try using pdfplumber
     if not text.strip():
         try:
-            with pdfplumber.open(pdf_path) as pdf:
+            with pdfplumber.open(file_path) as pdf:
                 for page in pdf.pages:
                     page_text = page.extract_text()
                     if page_text:
@@ -115,7 +117,7 @@ def pdf_to_text(pdf_path):
     # If pdfplumber fails, try pdfminer.six
     if not text.strip():
         try:
-            text = extract_text(pdf_path)
+            text = extract_text(file_path)
             if text.strip():
                 print("Text extracted successfully using pdfminer.six.")
         except Exception as e:
@@ -132,29 +134,28 @@ def image_to_text(image_path):
 
 def file_to_attributes(file_path, prenatal_test):
     if file_path[-3:] == "pdf":
-        text = pdf_to_text(file_path)
+        text = file_to_text(file_path)
     elif file_path[-3:] == "png" or file_path[-3:] == "jpg" or file_path[-4:] == "jpeg":
         text = image_to_text(file_path)
-    
-    
-    kvp = prenatal_tests[prenatal_test]
 
+    kvp = prenatal_tests[prenatal_test]
 
     # Extract text
     # pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-    
-
-    pdf_text = pdf_text.replace("\n", " ")
+    pdf_text = text.replace("\n", " ")
     pdf_text += "\n\nI want you to get from the text the following parameters and their values " \
                 "(the desired type is provided) and the metric (mm/cm/bpm etc...). " \
                 "If something doesn't exist, put None instead:\n"
 
-    for key, value in kvp:
-        pdf_text += f"{key} : {value}\n"
+    for key, value, high, low, unit in kvp:
+        pdf_text += f"name: {key} value: {value} min: {low} max: {high} unit: {unit}\n"
 
-    pdf_text += "I want only the parameters, values of the parameters, and the metric, " \
-                "no * or bullet points or the opening line\n"
+    pdf_text += "I want only the parameters, values of the parameters, high values and low values with the ones" \
+                " I gave you, and the metric, no * or bullet points or the opening line, i want a list of the" \
+                " example of the format I want: [{ 'name': 'Hemoglobin', 'value': 11, 'min': 12, 'max': 16, 'unit': 'MoM' },...]" \
+                "you should return it to me as a Text (not json), and I want to be able to take it as it is and transform" \
+                " it to a list and jsonfy it."
 
     client = genai.Client(api_key="AIzaSyBpT6qJ1A28dh2XQDnmSiNL4hIl-P94jFU")
     response = client.models.generate_content(
@@ -162,52 +163,61 @@ def file_to_attributes(file_path, prenatal_test):
         contents=pdf_text,
     )
 
-    print(response.to_json_dict())
-    return response.to_json_dict()
+    # print(response.to_json_dict())
+    text = response.text[8:-4].replace("'", '"')
+    data = json.loads(text)
+    # Print the result
+
+    return data
 
 
-
-# def text_to_attributes(text):
-
-
-### db functions
-def add_record_to_table(u_id, test, attributes, table_name="Prenatal_Tests", region='us-east-2'):
+################## db functions ####################
+def add_record_to_table(u_id, iso_date, test_name, attributes, table_name="Bellytag", region='eu-central-1'):
     dynamodb = boto3.resource('dynamodb', region_name=region)
     table = dynamodb.Table(table_name)
 
-    if not test or not attributes:
-        return "Not valid test or attributes!"
+    if not test_name or not attributes:
+        return "Not valid test name or attributes!"
 
     try:
-        # Check if the u_id exists
+        # Check if the u_id and iso_date combination exists
         response = table.get_item(
-            Key={'u_id': u_id}
+            Key={'u_id': u_id, 'date': iso_date}
         )
 
         if 'Item' in response:
-            # u_id exists, update the Tests hashmap
-            update_expression = "SET Tests.#test = :attributes"
-            expression_attribute_names = {"#test": test}
-            expression_attribute_values = {":attributes": attributes}
+            # u_id and iso_date combination exists, update the existing record
+            update_expression = "SET test_name = :test_name, attributes = :attributes"
+            expression_attribute_values = {":test_name": test_name, ":attributes": attributes}
         else:
-            # u_id does not exist, create a new item
-            update_expression = "SET Tests = :tests"
-            expression_attribute_names = {}
-            expression_attribute_values = {":tests": {test: attributes}}
+            # u_id and iso_date combination does not exist, create a new record with the test name and attributes
+            update_expression = "SET test_name = :test_name, attributes = :attributes"
+            expression_attribute_values = {":test_name": test_name, ":attributes": attributes}
 
         table.update_item(
-            Key={'u_id': u_id},
+            Key={'u_id': u_id, 'date': iso_date},
             UpdateExpression=update_expression,
-            ExpressionAttributeNames=expression_attribute_names,
             ExpressionAttributeValues=expression_attribute_values
         )
-
 
     except ClientError as e:
         return f"Error: {e.response['Error']['Message']}"
 
 
-def delete_record_from_table(name, category, table_name="Prenatal_Tests", region='us-east-2'):
+def get_tests_by_name(u_id, test_name, table_name="Bellytag", region='eu-central-1'):
+    dynamodb = boto3.resource("dynamodb", region_name=region)
+    table = dynamodb.Table(table_name)
+
+    # Query to get records for a specific u_id and filter by test_name
+    response = table.query(
+        KeyConditionExpression=Key('u_id').eq(u_id),
+        FilterExpression=Attr('test_name').eq(test_name)
+    )
+
+    return response['Items'] if response['Items'] else None
+
+
+def delete_record_from_table(name, category, table_name="Bellytag", region='eu-central-1'):
     dynamodb = boto3.resource("dynamodb", region_name=region)
     table = dynamodb.Table(table_name)
 
@@ -224,17 +234,6 @@ def delete_record_from_table(name, category, table_name="Prenatal_Tests", region
         return "Recipe was deleted!"
 
     return "Recipe does not exist!"
-
-
-def get_recipe(name, table_name="Prenatal_Tests", region='us-east-2'):
-    dynamodb = boto3.resource("dynamodb", region_name=region)
-    table = dynamodb.Table(table_name)
-
-    response = table.query(
-        KeyConditionExpression=Key('Name').eq(name)
-    )
-
-    return response['Items'][0] if len(response['Items']) > 0 in response else None
 
 
 # Generate a unique ID using user_id and password
@@ -374,36 +373,73 @@ def get_personal_data():
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def get_updated_file(dir_path, test_name):
+    files = [
+        f for f in os.listdir(dir_path)
+        if f.startswith(test_name) and f.split('.')[-1] in ALLOWED_EXTENSIONS
+    ]
+
+    if not files:
+        return None  # No matching files found
+
+    # Use max() to get the most updated file based on filename sorting
+    return max(files)
+
 @app.route('/file', methods=['POST'])
 def file():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
+
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return jsonify({"error": "No file part"}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({"error": "No selected file"}), 400
+        
+        if file and allowed_file(file.filename):
+            barcode = request.form.get('barcode')
+            file_name = request.form.get('newFileName')
+            test_name = request.form.get('testName')
+
+            # Create the directory for the user based on their barcode if it doesn't exist
+            user_folder = os.path.join(app.config['UPLOAD_FOLDER'], barcode)
+            if not os.path.exists(user_folder):
+                os.makedirs(user_folder)
+
+            # Save the file in the appropriate directory with the new file name
+            file_path = os.path.join(user_folder, secure_filename(file_name))
+            file.save(file_path)
+
+            # Process the file (e.g., extract attributes) and save to the database
+            # You can add your logic for processing the file here
+
+            file = get_updated_file(os.path.join(app.config['UPLOAD_FOLDER'], barcode), test_name)
+            if file:
+                
+                res = file_to_attributes(file, test_name)
+                iso_date = file_name.split("-")[-1]
+                add_record_to_table(barcode, iso_date, test_name, res)
+
+
+            return jsonify({"message": "File uploaded successfully!", "file_path": file_path}), 201
+        else:
+            return jsonify({"error": "Invalid file type"}), 400
     
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
-    
-    if file and allowed_file(file.filename):
-        barcode = request.form.get('barcode')
-        file_name = request.form.get('newFileName')
-        test_name = request.form.get('testName')
 
-        # Create the directory for the user based on their barcode if it doesn't exist
-        user_folder = os.path.join(app.config['UPLOAD_FOLDER'], barcode)
-        if not os.path.exists(user_folder):
-            os.makedirs(user_folder)
+@app.route('/test', methods=['GET'])
+def get_test():
+    if request.method == 'GET':
+        barcode = request.args.get('barcode')
+        test_name = request.args.get('testName')
+        date = request.args.get('date')
 
-        # Save the file in the appropriate directory with the new file name
-        file_path = os.path.join(user_folder, secure_filename(file_name))
-        file.save(file_path)
+        tests = get_tests_by_name(barcode, test_name)
 
-        # Process the file (e.g., extract attributes) and save to the database
-        # You can add your logic for processing the file here
+        if not barcode or not test_name or not date:
+            return jsonify({"error": "Barcode, test name, and date are required"}), 400
 
-        return jsonify({"message": "File uploaded successfully!", "file_path": file_path}), 201
-    else:
-        return jsonify({"error": "Invalid file type"}), 400
 
+        return tests, 200
 
 def patient_exists(barcode):
     """Check if the patient barcode exists in patients.csv"""
