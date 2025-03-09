@@ -116,7 +116,7 @@ export default {
 
         if (response.ok) {
           this.showToast("File uploaded successfully!", "success");
-        } else {
+        } else { 
           throw new Error("Something went wrong. Please try again.");
         }
       } catch (error) {

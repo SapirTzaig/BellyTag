@@ -1,50 +1,55 @@
 <template>
-    <div class="navbar">
-      <div class="nav-left">
-        <img :src="logoImage" alt="Logo" class="logo" />
-        <ul class="nav-links">
-          <li v-if="userRole === 'doctor'">
-          <router-link to="/dashboard">Main</router-link>
+  <div class="navbar">
+    <div class="nav-left">
+      <img :src="logoImage" alt="Logo" class="logo" />
+      <ul class="nav-links">
+        <li v-if="userRole === 'doctor'">
+          <router-link to="/dashboard">Select Patient</router-link>
         </li>
         <li v-if="userRole === 'patient'">
-          <router-link :to="`/patient/${barcode}`">Main</router-link>
+          <router-link :to="`/patient/${barcode}`">Medical Status</router-link>
         </li>
-          <li><router-link to="/user-details">User Details</router-link></li>
-          <li><router-link :to="`/upload/${barcode}`">Upload File</router-link></li>
-        </ul>
-      </div>
-      <a href="#" @click="logout" class="logout-button">Log Out</a>
+        <li><router-link to="/user-details">User Details</router-link></li>
+        <li v-if="userRole === 'patient'">
+          <router-link :to="`/upload/${barcode}`">Upload File</router-link>
+        </li>
+      </ul>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    data() {
-      return {
-        logoImage: "@/Assets/logo.png", // Ensure the logo image is properly imported
-        barcode: sessionStorage.getItem("barcode") || "", // Barcode from sessionStorage
-        userRole: sessionStorage.getItem("role") || "", // Get user role from sessionStorage (doctor or patient)
-      };
+    <a href="#" @click="logout" class="logout-button">Log Out</a>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      logoImage,
+      barcode: sessionStorage.getItem("barcode") || "",
+      userRole: sessionStorage.getItem("role") || "",
+    };
+  },
+  methods: {
+    logout() {
+      sessionStorage.clear();
+      alert("Logged out successfully!");
+      this.$router.push("/");
     },
-    
-    methods: {
-      // Logout and clear sessionStorage
-      logout() {
-        sessionStorage.clear(); // Clear sessionStorage when logging out
-        alert("Logged out successfully!");
-        this.$router.push("/"); // Redirect to the login page
-      },
-    },
-    computed: {
-      isDoctor() {
-        return sessionStorage.getItem('role') === 'doctor';
-      },
-      isPatient() {
-        return sessionStorage.getItem('role') === 'patient';
+    setFavicon() {
+      let link = document.querySelector("link[rel~='icon']");
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = "icon";
+        document.head.appendChild(link);
       }
-    }
-  };
-  </script>
+      link.href = "./BellyTagFrontend/src/Assets/docho.ico"; // Use the file in the public folder
+    },
+  },
+  mounted() {
+    this.setFavicon(); // Set favicon when the component loads
+  },
+};
+</script>
+
   
   <style scoped>
   .navbar {

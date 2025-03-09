@@ -38,8 +38,11 @@ export default {
         const result = await response.json();
 
         if (response.ok && result.exists) {
-          // Redirect to patient screen if barcode exists
-          this.$router.push(`/patient/${this.patientBarcode}`);
+          // Store patient barcode in sessionStorage
+          sessionStorage.setItem("patientBarcode", this.patientBarcode);
+          
+          // Redirect to patient screen
+          this.$router.push(`/Doctor_patient/${this.patientBarcode}`);
         } else {
           alert("No patient found with this barcode.");
         }
