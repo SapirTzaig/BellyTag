@@ -1,51 +1,71 @@
 <template>
   <div class="pregnancy-week-card">
-    <h2>Pregnancy Week</h2>
-    <p v-if="pregnancyWeek !== null">{{ pregnancyWeek }} Weeks</p>
-    <p v-else class="default-text">Estimated Week: {{ defaultPregnancyWeek }} Weeks</p>
+    <h2>🤰 Pregnancy Week</h2>
+    <p v-if="pregnancyWeek !== null" class="week-text">
+      <span class="week-number">{{ pregnancyWeek }}</span> Weeks
+    </p>
+    <p v-else class="default-text">
+      Estimated Week: <span class="week-number">{{ defaultPregnancyWeek }}</span> Weeks
+    </p>
   </div>
 </template>
 
 <script>
 export default {
-  props: ["lastPeriodDate"], // Receives the last period date from the system
+  props: ["lastPeriodDate"],
   computed: {
     pregnancyWeek() {
-      if (!this.lastPeriodDate) return null; // If no last period date, return null
+      if (!this.lastPeriodDate) return null;
       const lastPeriod = new Date(this.lastPeriodDate);
       const today = new Date();
-      const diffInDays = (today - lastPeriod) / (1000 * 60 * 60 * 24); // Calculate the difference in days
-      return Math.floor(diffInDays / 7); // Divide by 7 to get the pregnancy week
+      const diffInDays = (today - lastPeriod) / (1000 * 60 * 60 * 24);
+      return Math.floor(diffInDays / 7);
     },
     defaultPregnancyWeek() {
-      // Default value if there is no date: show estimated week as 0
       return 0;
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style scoped>
 .pregnancy-week-card {
-  background: #f9f9f9;
+  background: linear-gradient(to bottom, #fdfbfb, #f8f9fa); /* Gradient רקע עדין */
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 12px; /* פינות מעוגלות יותר */
   text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 250px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 280px;
   margin: 20px auto;
+  transition: transform 0.3s ease-in-out;
 }
+
+.pregnancy-week-card:hover {
+  transform: scale(1.05); /* הגדלה קלה ב-Hover */
+}
+
 h2 {
   color: #333;
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
-p {
+
+.week-text {
   font-size: 20px;
   font-weight: bold;
-  color: #4CAF50;
+  color: #4CAF50; /* ירוק */
 }
+
 .default-text {
-  color: #f39c12; /* Orange color to highlight estimated week */
+  color: #f39c12; /* כתום */
   font-size: 18px;
   font-weight: bold;
+}
+
+.week-number {
+  font-size: 28px;
+  font-weight: bold;
+  color: #2c3e50; /* כחול כהה */
 }
 </style>
