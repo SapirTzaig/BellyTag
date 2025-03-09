@@ -1,83 +1,117 @@
 <template>
-    <div class="blood-tests-container">
-      <h2>Recent Blood Tests</h2>
-  
-      <!-- תפריט לבחירת בדיקה -->
-      <select v-model="selectedTest" class="test-selection">
-        <option value="">Select Test</option>
-        <option v-for="test in tests" :key="test.name" :value="test.name">
-          {{ test.name }}
-        </option>
-      </select>
-  
-      <!-- הצגת תוצאה רק אם נבחרה בדיקה -->
-      <div v-if="selectedTest" class="test-result">
-        <h3>{{ selectedTest }}</h3>
-        <p>{{ getTestResult(selectedTest) }}</p>
-      </div>
+  <div class="blood-tests-container">
+    <h2>Pregnancy Blood Tests</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Test Name</th>
+            <th>Result</th>
+            <th>Normal Range</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="test in latestBloodTests" :key="test.name">
+            <td>{{ test.name }}</td>
+            <td>{{ test.value }}</td>
+            <td>{{ test.min }} - {{ test.max }}</td>
+            <td :class="getStatusClass(test.value, test.min, test.max)">
+              {{ getStatusText(test.value, test.min, test.max) }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    data() {
-      return {
-        selectedTest: "", // בדיקה נבחרת
-        tests: [
-          { name: "Ultrasound for Fetal Nuchal Translucency", result: "Normal measurement of 1.2mm" },
-          { name: "Ultrasound for Fetal Nasal Bone Determination", result: "Nasal bone present, no abnormalities detected" },
-          { name: "Maternal Serum (Blood) Tests", result: "Beta-hCG: 50,000 mIU/ml (Normal range)" },
-          { name: "Genetic Screening Recommendation", result: "Recommended based on maternal age" },
-          { name: "Multiple Marker Blood Tests (Second Trimester)", result: "AFP: 30 ng/ml, Estriol: Normal, hCG: Elevated" },
-          { name: "Possible Abnormal Indications", result: "No abnormalities detected" },
-          { name: "Follow-up Testing", result: "Further ultrasound recommended in 2 weeks" },
-          { name: "Screening Accuracy", result: "99.5% accuracy for Down syndrome detection" },
-          { name: "Group B Streptococcus Presence", result: "Negative result" },
-        ],
-      };
+    <button @click="$router.push('/blood-tests-history')">View More Tests</button>
+  </div>
+</template>
+
+<script>
+import bloodTestsData from "@/Assets/blood_tests_data.json"; // טעינת הנתונים מה-JSON
+
+export default {
+  data() {
+    return {
+      latestBloodTests: bloodTestsData.latestTest.tests // הבדיקות האחרונות
+    };
+  },
+  methods: {
+    getStatusClass(value, min, max) {
+      if (value < min || value > max) return "danger";
+      if (value === min || value === max) return "warning";
+      return "normal";
     },
-    methods: {
-      getTestResult(testName) {
-        const test = this.tests.find((t) => t.name === testName);
-        return test ? test.result : "No data available";
-      },
-    },
-  };
-  </script>
-  
-  <style scoped>
-  .blood-tests-container {
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    margin: 20px auto;
+    getStatusText(value, min, max) {
+      if (value < min) return "Below Normal";
+      if (value > max) return "Above Normal";
+      return "Within Normal Range";
+    }
   }
-  h2 {
-    color: #333;
-  }
-  .test-selection {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-  }
-  .test-result {
-    margin-top: 20px;
-    padding: 15px;
-    background: #e3f2fd;
-    border-radius: 5px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-  h3 {
-    color: #0277bd;
-  }
-  p {
-    font-size: 16px;
-    color: #555;
-  }
-  </style>
-  
+};
+</script>
+
+<style scoped>
+.blood-tests-container {
+  max-width: 700px;
+  margin: 20px auto;
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+h2 {
+  color: #333;
+}
+
+.table-wrapper {
+  max-height: 250px;
+  overflow-y: auto; /* גלילה אנכית */
+  border: 1px solid #ddd;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+th {
+  background-color: #f4f4f4;
+}
+
+.normal {
+  color: green;
+}
+
+.warning {
+  color: orange;
+}
+
+.danger {
+  color: red;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+</style>
