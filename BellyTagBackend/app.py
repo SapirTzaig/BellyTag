@@ -458,12 +458,14 @@ def file():
 @app.route('/test', methods=['GET'])
 def get_test():
     if request.method == 'GET':
-        barcode = request.args.get('barcode')
-        test_name = request.args.get('testName')
+        barcode = request.json.get('barcode')
+        test_name = request.json.get('testName')
 
         print(barcode, test_name)
 
         tests = get_tests_by_name(barcode, test_name)
+        for test in tests:
+            print(test['date'])
 
         if not barcode or not test_name or not tests:
             return jsonify({"error": "Barcode, test name are required"}), 400
