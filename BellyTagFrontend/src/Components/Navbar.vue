@@ -20,6 +20,7 @@
 </template>
 
 <script>
+import logoImage from "@/Assets/logo.png";
 export default {
   data() {
     return {
