@@ -18,8 +18,6 @@
       <div class="mt-2">
         Do not have an account yet?
         <router-link to="/register"> Register here</router-link>
-        <router-link :to="`/upload/${barcode}`"> Upload here</router-link>
-        <router-link :to="`/patient/ee78c1c2b2`"> Patient screen here</router-link>
       </div>
     </form>
   </div>

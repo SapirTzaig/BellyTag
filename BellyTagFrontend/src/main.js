@@ -31,7 +31,7 @@ document.title = "DocHumation";
 const link = document.createElement("link");
 link.rel = "icon";
 link.type = "image/x-icon";
-link.href = "src/Assets/docho.ico"; // Path relative to the public folder
+link.href = ".\docho.ico"; // Path relative to the public folder
 document.head.appendChild(link);
 
 const router = createRouter({
