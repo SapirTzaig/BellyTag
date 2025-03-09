@@ -206,13 +206,12 @@ def get_tests_by_name(u_id, test_name, table_name="Bellytag", region='eu-central
     dynamodb = boto3.resource("dynamodb", region_name=region)
     table = dynamodb.Table(table_name)
 
-    # Query to get records for a specific u_id and filter by test_name
-    response = table.query(
-        KeyConditionExpression=Key('u_id').eq(u_id),
-        FilterExpression=Attr('test_name').eq(test_name)
+    response = table.scan(
+        FilterExpression=Key('u_id').eq(u_id) & Attr('test_name').eq(test_name)
     )
 
     return response['Items'] if response['Items'] else None
+
 
 
 def delete_record_from_table(name, category, table_name="Bellytag", region='eu-central-1'):
@@ -414,7 +413,7 @@ def file():
             file = get_updated_file(os.path.join(app.config['UPLOAD_FOLDER'], barcode), test_name)
             if file:
                 
-                res = file_to_attributes(file, test_name)
+                res = file_to_attributes(file_path, test_name)
                 iso_date = file_name.split("-")[-1]
                 add_record_to_table(barcode, iso_date, test_name, res)
 
@@ -429,12 +428,13 @@ def get_test():
     if request.method == 'GET':
         barcode = request.args.get('barcode')
         test_name = request.args.get('testName')
-        date = request.args.get('date')
+
+        print(barcode, test_name)
 
         tests = get_tests_by_name(barcode, test_name)
 
-        if not barcode or not test_name or not date:
-            return jsonify({"error": "Barcode, test name, and date are required"}), 400
+        if not barcode or not test_name:
+            return jsonify({"error": "Barcode, test name are required"}), 400
 
 
         return tests, 200
