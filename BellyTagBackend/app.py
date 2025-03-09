@@ -461,17 +461,19 @@ def get_test():
         barcode = request.json.get('barcode')
         test_name = request.json.get('testName')
 
-        print(barcode, test_name)
+        # print(barcode, test_name)
 
         tests = get_tests_by_name(barcode, test_name)
-        for test in tests:
-            print(test['date'])
-
+        
         if not barcode or not test_name or not tests:
             return jsonify({"error": "Barcode, test name are required"}), 400
-
-
-        return tests, 200
+        
+        latestTest = tests[-1]
+        history = tests[:-1]
+        if not history:
+            history = {}
+ 
+        return jsonify({"latestTest": latestTest, "history": history}), 200
 
 def patient_exists(barcode):
     """Check if the patient barcode exists in patients.csv"""
