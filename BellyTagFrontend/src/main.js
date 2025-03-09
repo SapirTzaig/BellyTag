@@ -11,6 +11,7 @@ import NuchalTranslucencyDetails from './Pages/NuchalTranslucencyDetails.vue';
 import DoctorPatientScreen from './Pages/DoctorPatientScreen.vue';
 import BloodTests from '@/Components/BloodTests.vue';
 import BloodTestsHistory from '@/Pages/BloodTestsHistory.vue';
+import GenerateBarcode from '@/Pages/GenerateBarcode.vue';
 
 const routes = [
   { path: '/register', name: 'register', component: RegisterPage },
@@ -21,10 +22,8 @@ const routes = [
   { path: '/Doctor_patient/:barcode', component: DoctorPatientScreen },
   { path: '/user-details', component: UserDetails },
   { path: '/nt-details', component: NuchalTranslucencyDetails },
-  { path: '/', component: BloodTests },
-  { path: '/blood-tests-history', component: BloodTestsHistory }
-
-  
+  { path: '/blood-tests-history', component: BloodTestsHistory },
+  { path: '/generate/:barcode', component: GenerateBarcode },
 ];
 
 document.title = "DocHumation";

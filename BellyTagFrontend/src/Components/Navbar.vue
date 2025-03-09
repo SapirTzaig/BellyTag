@@ -13,6 +13,9 @@
         <li v-if="userRole === 'patient'">
           <router-link :to="`/upload/${barcode}`">Upload File</router-link>
         </li>
+        <li v-if="userRole === 'patient'">
+          <router-link :to="`/generate/${barcode}`">Generate barcode</router-link>
+        </li>
       </ul>
     </div>
     <a href="#" @click="logout" class="logout-button">Log Out</a>
@@ -20,7 +23,7 @@
 </template>
 
 <script>
-import logoImage from "@/Assets/logo.png";
+import logoImage from "@/Assets/docho.png";
 export default {
   data() {
     return {

@@ -79,20 +79,19 @@ export default {
     return;
   }
 
-  // Get the current date and time
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
-  const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
+  if (!this.selectedTest) {
+    this.showToast("Please select a test type before uploading.", "error");
+    return;
+  }
 
-  // Create the timestamp (YYYYMMDDHHMMSS)
-  const timestamp = `${year}${month}${day}${hours}${minutes}${seconds}`;
+  // Get the current date and time in ISO 8601 format
+  const now = new Date();
+  const timestamp = now.toISOString(); // This will return the date in ISO 8601 format
+
+  const formattedTestName = this.selectedTest.replace(/_/g, '-');
 
   // Generate the new file name with test name and timestamp
-  const newFileName = `${this.selectedTest}_${timestamp}${this.file.name.slice(this.file.name.lastIndexOf('.'))}`;
+  const newFileName = `${formattedTestName}-${timestamp}${this.file.name.slice(this.file.name.lastIndexOf('.'))}`;
 
   // Create FormData
   const formData = new FormData();
@@ -106,6 +105,7 @@ export default {
   this.uploadFile(formData);
   this.selectedTest = '';
 },
+
 
     async uploadFile(formData) {
       try {
