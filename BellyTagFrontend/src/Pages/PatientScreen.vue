@@ -1,7 +1,7 @@
 <template>
   <div class="patient-screen">
     <h1 class="patient-title">
-      <span>Welcome,</span> {{ patient.username }} 💙
+      <span>Welcome,</span> {{ patient.username }}
     </h1>
     <p class="subtitle">Your Pregnancy Dashboard</p>
 
