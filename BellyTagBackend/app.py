@@ -60,7 +60,6 @@ prenatal_tests = {
     "Multiple Marker Blood Tests (Second Trimester)": [
         ("AFP Screening", "float", 2.5, 0.5, "MoM"),
         ("Estriol", "float", 2.5, 0.5, "MoM"),
-        ("Inhibin", "float", 2.0, 0.5, "MoM"),
         ("Human Chorionic Gonadotropin", "float", 3.0, 0.5, "MoM")
     ],
     "Possible Abnormal Indications": [
