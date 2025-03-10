@@ -24,9 +24,9 @@ export default {
 
 <style scoped>
 .last-period-card {
-  background: linear-gradient(to bottom, #fdfbfb, #f8f9fa); /* Gradient רקע עדין */
+  background: linear-gradient(to bottom, #fdfbfb, #f8f9fa);
   padding: 20px;
-  border-radius: 12px; /* פינות מעוגלות */
+  border-radius: 12px; 
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 280px;
@@ -35,7 +35,7 @@ export default {
 }
 
 .last-period-card:hover {
-  transform: scale(1.05); /* אפקט עדין בעת ריחוף */
+  transform: scale(1.05); 
 }
 
 h2 {
@@ -48,6 +48,6 @@ h2 {
 .date-text {
   font-size: 20px;
   font-weight: bold;
-  color: #4CAF50; /* ירוק */
+  color: #4CAF50; 
 }
 </style>

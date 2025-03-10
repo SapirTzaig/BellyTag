@@ -3,7 +3,6 @@
       <h2>Pregnancy Check-Up Checklist</h2>
   
       <div class="checklist-grid">
-        <!-- 🔹 טור לבדיקות חובה -->
         <div class="section mandatory">
           <h3>Mandatory Tests</h3>
           <ul>
@@ -14,7 +13,6 @@
           </ul>
         </div>
   
-        <!-- 🔹 טור לבדיקות מומלצות -->
         <div class="section recommended">
           <h3>Recommended Tests</h3>
           <ul>
@@ -88,14 +86,12 @@
     text-align: center;
   }
   
-  /* 🔹 עיצוב כותרות */
   h2 {
     color: #333;
     font-size: 24px;
     margin-bottom: 15px;
   }
   
-  /* 🔹 פריסת הבדיקות בשני טורים */
   .checklist-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -103,7 +99,6 @@
     text-align: left;
   }
   
-  /* 🔹 עיצוב כל טור */
   .section {
     padding: 15px;
     border-radius: 10px;
@@ -111,12 +106,10 @@
     box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
   }
   
-  /* 🔹 הבדיקות החיוניות עם מסגרת כחולה */
   .mandatory {
     border-left: 5px solid #007bff;
   }
   
-  /* 🔹 הבדיקות המומלצות עם מסגרת ירוקה */
   .recommended {
     border-left: 5px solid #28a745;
   }
@@ -127,33 +120,28 @@
     margin-bottom: 10px;
   }
   
-  /* 🔹 רשימות בדיקות */
   ul {
     list-style-type: none;
     padding: 0;
   }
   
-  /* 🔹 עיצוב של כל בדיקה ברשימה */
   li {
     display: flex;
     align-items: center;
     padding: 5px 0;
   }
   
-  /* 🔹 צ'קבוקסים מוגדלים */
   input[type="checkbox"] {
     margin-right: 10px;
     transform: scale(1.3);
     cursor: pointer;
   }
   
-  /* 🔹 עיצוב טקסט */
   label {
     cursor: pointer;
     font-size: 16px;
   }
   
-  /* 🔹 התאמה לטלפונים - שני הטורים יהפכו לעמודה אחת */
   @media (max-width: 768px) {
     .checklist-grid {
       grid-template-columns: 1fr;

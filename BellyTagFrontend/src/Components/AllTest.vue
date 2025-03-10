@@ -2,7 +2,6 @@
     <div class="blood-tests-container">
       <h2>Recent Blood Tests</h2>
   
-      <!-- תפריט לבחירת בדיקה -->
       <select v-model="selectedTest" class="test-selection">
         <option value="">Select Test</option>
         <option v-for="test in tests" :key="test.name" :value="test.name">
@@ -10,7 +9,6 @@
         </option>
       </select>
   
-      <!-- הצגת תוצאה רק אם נבחרה בדיקה -->
       <div v-if="selectedTest" class="test-result">
         <h3>{{ selectedTest }}</h3>
         <p>{{ getTestResult(selectedTest) }}</p>
@@ -22,7 +20,7 @@
   export default {
     data() {
       return {
-        selectedTest: "", // בדיקה נבחרת
+        selectedTest: "",
         tests: [
           { name: "Ultrasound for Fetal Nuchal Translucency", result: "Normal measurement of 1.2mm" },
           { name: "Ultrasound for Fetal Nasal Bone Determination", result: "Nasal bone present, no abnormalities detected" },

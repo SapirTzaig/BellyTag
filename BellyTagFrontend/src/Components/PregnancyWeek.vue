@@ -30,9 +30,9 @@ export default {
 
 <style scoped>
 .pregnancy-week-card {
-  background: linear-gradient(to bottom, #fdfbfb, #f8f9fa); /* Gradient רקע עדין */
+  background: linear-gradient(to bottom, #fdfbfb, #f8f9fa); 
   padding: 20px;
-  border-radius: 12px; /* פינות מעוגלות יותר */
+  border-radius: 12px; 
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 280px;
@@ -41,7 +41,7 @@ export default {
 }
 
 .pregnancy-week-card:hover {
-  transform: scale(1.05); /* הגדלה קלה ב-Hover */
+  transform: scale(1.05); 
 }
 
 h2 {
@@ -54,11 +54,11 @@ h2 {
 .week-text {
   font-size: 20px;
   font-weight: bold;
-  color: #4CAF50; /* ירוק */
+  color: #4CAF50; 
 }
 
 .default-text {
-  color: #f39c12; /* כתום */
+  color: #f39c12; 
   font-size: 18px;
   font-weight: bold;
 }
@@ -66,6 +66,6 @@ h2 {
 .week-number {
   font-size: 28px;
   font-weight: bold;
-  color: #2c3e50; /* כחול כהה */
+  color: #2c3e50; 
 }
 </style>

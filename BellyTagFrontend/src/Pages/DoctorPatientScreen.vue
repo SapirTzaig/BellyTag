@@ -98,7 +98,7 @@ export default {
 
 .components-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* התאמה דינמית */
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 20px;
   max-width: 1200px;
   width: 100%;
@@ -113,7 +113,6 @@ export default {
   text-align: center;
 }
 
-/* 🎨 קביעת גדלים לפי תוכן */
 .pregnancy-week {
   grid-column: span 1;
 }
@@ -141,7 +140,7 @@ export default {
   min-height: 300px;
 }
 
-/* 🎨 צבעים לתוצאות */
+
 .normal {
   color: green;
   font-weight: bold;

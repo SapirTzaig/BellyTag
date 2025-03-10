@@ -123,7 +123,6 @@ export default {
   padding: 20px;
 }
 
-/* 🔹 הפרדה בין קבוצות שונות של בדיקות */
 .grid-section {
   background: #f8f9fa;
   padding: 15px;
@@ -132,31 +131,26 @@ export default {
   text-align: center;
 }
 
-/* 🔹 עיצוב הכותרות */
 .grid-section h2 {
   margin-bottom: 15px;
   color: #007bff;
   font-size: 1.4em;
 }
 
-/* 🔹 גריד פנימי לכל קבוצה */
 .grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 20px;
 }
 
-/* 🔹 שינוי הגריד של Pregnancy Overview ל-4 עמודות */
 .pregnancy-grid {
-  grid-template-columns: repeat(4, 1fr); /* 4 עמודות אחידות */
+  grid-template-columns: repeat(4, 1fr); 
 }
 
-/* 🔹 הצ'קליסט יתפרס על כל הרוחב */
 .full-width {
   grid-column: span 2;
 }
 
-/* 🔹 עיצוב אחיד לקומפוננטות */
 .component-item {
   background: white;
   padding: 20px;
@@ -165,12 +159,10 @@ export default {
   text-align: center;
 }
 
-/* 🎨 קביעת גדלים לפי תוכן */
 .pregnancy-week, .last-period, .nuchal-translucency, .nasal-bone {
   grid-column: span 1;
 }
 
-/* 🎨 צבעים לתוצאות */
 .normal {
   color: green;
   font-weight: bold;

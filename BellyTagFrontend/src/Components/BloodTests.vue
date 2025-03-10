@@ -158,7 +158,6 @@ button:hover {
   transform: translateY(-2px);
 }
 
-/* 🌙 מצב כהה */
 @media (prefers-color-scheme: dark) {
   .blood-tests-container {
     background: #222;

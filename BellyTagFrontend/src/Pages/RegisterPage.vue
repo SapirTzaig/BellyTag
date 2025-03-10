@@ -2,7 +2,6 @@
   <div class="register-container">
     <h2>Register</h2>
     <form @submit.prevent="onRegister">
-      <!-- Your form fields here -->
       <div class="form-group">
         <label>First Name:</label>
         <input type="text" v-model="form.firstName" required />

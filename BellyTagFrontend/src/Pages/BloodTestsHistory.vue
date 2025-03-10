@@ -27,7 +27,7 @@
 
 <script>
 import bloodTestsData from "@/Assets/blood_tests_data.json";
-import PieChart from "@/Components/PieChart.vue"; // ייבוא התרשים
+import PieChart from "@/Components/PieChart.vue"; 
 
 export default {
   components: {
@@ -59,9 +59,9 @@ export default {
       return "Within Normal Range";
     },
     getCardColor(value, min, max) {
-      if (value < min) return "#FFDDC1"; // כתום בהיר לערך נמוך
-      if (value > max) return "#FFC1C1"; // ורוד לערך גבוה
-      return "#C1FFD7"; // ירוק לערך תקין
+      if (value < min) return "#FFDDC1";
+      if (value > max) return "#FFC1C1";
+      return "#C1FFD7";
     }
   }
 };
