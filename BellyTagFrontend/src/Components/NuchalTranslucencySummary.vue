@@ -12,34 +12,64 @@
 </template>
 
 <script>
-import { defineComponent, computed } from "vue";
+import { defineComponent, computed, ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 
 export default defineComponent({
-  setup() {
+  props: {
+    barcode: String, // Declare barcode as a prop
+  },
+  setup(props) {
     const router = useRouter();
+    const ntValue = ref(null);
+    const patientId = props.barcode; // Use barcode prop
 
-    // נתונים דיפולטיביים (אפשר למשוך ממסד נתונים)
-    const ntValue = 1.9; // לדוגמה
+    const fetchNtValue = async () => {
+      try {
+        if (!patientId) {
+          console.error("No patient barcode found");
+          return;
+        }
 
-    // חישוב רמת הסיכון לפי NT
+        const testResponse = await fetch(
+          `http://localhost:5000/test?barcode=${patientId}&testName=Ultrasound%20for%20Fetal%20Nuchal%20Translucency`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!testResponse.ok) throw new Error(`HTTP error! Status: ${testResponse.status}`);
+
+        const testData = await testResponse.json();
+        const latestTest = testData.latestTest;
+
+        const ntAttribute = latestTest.attributes.find(attr => attr.name === "Nuchal Translucency");
+        ntValue.value = ntAttribute ? parseFloat(ntAttribute.value) : null;
+      } catch (error) {
+        console.error("Error fetching NT value:", error);
+      }
+    };
+
+    onMounted(fetchNtValue);
+
     const riskLevel = computed(() => {
-      if (ntValue < 2.5) return "Low";
-      if (ntValue < 3.5) return "Medium";
+      if (ntValue.value === null) return "Unknown";
+      if (ntValue.value < 2.5) return "Low";
+      if (ntValue.value < 3.5) return "Medium";
       return "High";
     });
 
-    // צבע רקע בהתאם לרמת הסיכון
     const riskLevelColor = computed(() => {
-      if (ntValue < 2.5) return "low";
-      if (ntValue < 3.5) return "medium";
+      if (ntValue.value === null) return "";
+      if (ntValue.value < 2.5) return "low";
+      if (ntValue.value < 3.5) return "medium";
       return "high";
     });
 
-    // מעבר לעמוד הפירוט
     const goToDetails = () => {
-      router.push("/nt-details");
-    };
+      router.push({ path: '/nt-details', query: { barcode: patientId } });
+    };  
 
     return { ntValue, riskLevel, riskLevelColor, goToDetails };
   },
@@ -48,7 +78,7 @@ export default defineComponent({
 
 <style scoped>
 .nt-summary-card {
-  background: linear-gradient(to bottom, #fdfbfb, #f8f9fa); /* רקע עם גרדיאנט */
+  background: linear-gradient(to bottom, #fdfbfb, #f8f9fa);
   padding: 20px;
   border-radius: 12px;
   text-align: center;
@@ -82,7 +112,6 @@ h3 {
   font-size: 1.8rem;
 }
 
-/* 🎨 צבעים לרמות סיכון */
 .low {
   background-color: #e3fcef;
   color: #2e7d32;
@@ -106,7 +135,6 @@ h3 {
   padding: 5px;
 }
 
-/* 🎨 כפתור מעוצב */
 button {
   margin-top: 15px;
   padding: 10px 18px;

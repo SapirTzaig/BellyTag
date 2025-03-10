@@ -40,9 +40,9 @@ export default {
         if (response.ok && result.exists) {
           // Store patient barcode in sessionStorage
           sessionStorage.setItem("patientBarcode", this.patientBarcode);
-          
+          console.log(this.patientBarcode);
           // Redirect to patient screen
-          this.$router.push(`/Doctor_patient/${this.patientBarcode}`);
+          this.$router.push(`/patient/${this.patientBarcode}`);
         } else {
           alert("No patient found with this barcode.");
         }

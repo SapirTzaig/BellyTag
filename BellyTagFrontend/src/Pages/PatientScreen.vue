@@ -6,23 +6,20 @@
     <p class="subtitle">Your Pregnancy Dashboard</p>
 
     <div class="components-grid">
-      <!-- 🔹 בדיקות הריון עיקריות -->
       <div class="grid-section">
         <h2>Pregnancy Overview</h2>
         <div class="grid-container pregnancy-grid">
           <PregnancyWeek :lastPeriodDate="patient.LastPeriodDate" />
           <LastPeriodDate :lastPeriodDate="patient.LastPeriodDate" @update-date="updateLastPeriodDate" />
-          <NuchalTranslucencySummary :nt-value="patient.ntValue" />
+          <NuchalTranslucencySummary :nt-value="patient.ntValue" :barcode="barcode" />
           <NasalBoneSummary :nasalBone="patient.nasalBone" />
         </div>
       </div>
       
-      <!-- 🔹 רשימת משימות (CheckList) -->
       <div class="grid-section full-width">
         <CheckList />
       </div>
 
-      <!-- 🔹 בדיקות מעבדה -->
       <div class="grid-section">
         <h2>Laboratory Tests</h2>
         <div class="grid-container">
@@ -31,7 +28,6 @@
         </div>
       </div>
 
-      <!-- 🔹 אינדיקציות חריגות ומעקב -->
       <div class="grid-section">
         <h2>Follow-up & Risk Screening</h2>
         <div class="grid-container">
@@ -81,13 +77,13 @@ export default {
     return {
       patient: {},
       logoImage,
-      barcode: sessionStorage.getItem("barcode") || "",
+      barcode: this.$route.params.barcode,
     };
   },
   async created() {
     try {
       const patientId = sessionStorage.getItem('barcode');
-      const response = await fetch(`http://localhost:5000/personal?barcode=${patientId}`, {
+      const response = await fetch(`http://localhost:5000/personal?barcode=${this.barcode}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });

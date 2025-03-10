@@ -458,8 +458,9 @@ def file():
 @app.route('/test', methods=['GET'])
 def get_test():
     if request.method == 'GET':
-        barcode = request.json.get('barcode')
-        test_name = request.json.get('testName')
+
+        barcode = request.args.get('barcode')
+        test_name = request.args.get('testName')
 
         # print(barcode, test_name)
 
