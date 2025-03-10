@@ -142,9 +142,6 @@ def file_to_attributes(file_path, prenatal_test):
 
     kvp = prenatal_tests[prenatal_test]
 
-    # Extract text
-    # pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-
     prompt = text.replace("\n", " ")
     prompt += "\n\nI want you to get from the text the following parameters and their values " \
                 "(the desired type is provided) and the metric (mm/cm/bpm etc...). " \
