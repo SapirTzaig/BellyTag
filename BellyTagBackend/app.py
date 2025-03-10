@@ -58,9 +58,9 @@ prenatal_tests = {
         ("Additional Tests", "list", "normal", "normal", "number of tests")
     ],
     "Multiple Marker Blood Tests (Second Trimester)": [
-        ("AFP Screening", "float", 2.5, 0.5, "MoM"),
-        ("Estriol", "float", 2.5, 0.5, "MoM"),
-        ("Human Chorionic Gonadotropin", "float", 3.0, 0.5, "MoM")
+        ("AFP Screening", "float", 150, 10, "ng/mL"),
+        ("Estriol", "float", 28.5, 0.25, "ng/mL"),
+        ("Human Chorionic Gonadotropin", "float", 100000, 10, "mIU/mL")
     ],
     "Possible Abnormal Indications": [
         ("Abnormal AFP", "boolean", "normal", "normal", "abnormal/normal"),
@@ -456,7 +456,7 @@ def file():
 
 @app.route('/test', methods=['GET'])
 def get_test():
-    if request.method == 'GET': 
+    if request.method == 'GET':  
 
         barcode = request.args.get('barcode')
         test_name = request.args.get('testName')
