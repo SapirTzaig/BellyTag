@@ -457,12 +457,10 @@ def file():
 
 @app.route('/test', methods=['GET'])
 def get_test():
-    if request.method == 'GET':
+    if request.method == 'GET': 
 
         barcode = request.args.get('barcode')
         test_name = request.args.get('testName')
-
-        # print(barcode, test_name)
 
         tests = get_tests_by_name(barcode, test_name)
         
